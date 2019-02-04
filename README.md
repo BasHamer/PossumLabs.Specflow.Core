@@ -5,9 +5,9 @@ The core library for the Possum Labs Specflow extention
 
 Please see https://github.com/BasHamer/PossumLabs.Specflow for tutorials and examples.
 
-## Variables
+# Variables
 
-### Scenario: Variables
+## Scenario: Variables
 #### Given the Companies
 | var           |
 | -------------:|
@@ -18,9 +18,9 @@ Please see https://github.com/BasHamer/PossumLabs.Specflow for tutorials and exa
 | U1            | C1            |
 | U2            | C1            |
 
-## Validation
+# Validation
 
-### Scenario: Promotion
+## Scenario: Use . notation to validate properties
 #### Given the Employee
 | var | Name | 
 | --- | ----:|
@@ -34,7 +34,7 @@ Please see https://github.com/BasHamer/PossumLabs.Specflow for tutorials and exa
 #### Then 'E1.Role' has the value 'CEO'
 
 
-### Scenario: John needs proof
+## Scenario: you can also validate lists
 #### Given the Employees
 | var | Name | Seniority |
 | --- | ----:| ---------:|
