@@ -17,22 +17,12 @@ namespace PossumLabs.Specflow.Core
             }
             finally
             {
-                Trace.WriteLine($"{name} : {sw.ElapsedMilliseconds} ms");
+                Trace.WriteLine($"lambda in {name} : {sw.ElapsedMilliseconds} ms");
             }
         }
 
         private static void Time(Action a, string name)
-        {
-            var sw = Stopwatch.StartNew();
-            try
-            {
-                a();
-            }
-            finally
-            {
-                Trace.WriteLine($"lambda in {name} : {sw.ElapsedMilliseconds} ms");
-            }
-        }
+        => Time<int>(() => { a(); return 42; }, name);
 
         //(new Action(() => Thread.Sleep(100)).Instrument())();
         public static Action Instrument(this Action a, [CallerMemberName] string caller = null)

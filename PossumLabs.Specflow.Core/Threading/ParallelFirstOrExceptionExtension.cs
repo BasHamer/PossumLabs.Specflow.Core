@@ -45,15 +45,12 @@ namespace PossumLabs.Specflow.Core.Threading
                         wrapper.DurationMs = sw.ElapsedMilliseconds;
                     }
                 });
-
-            Trace.WriteLine($"ParallelFirstOrException total { wrappers.Sum(wp=>wp.DurationMs) } real {swt.ElapsedMilliseconds}");
-
             if (!state.LowestBreakIteration.HasValue)
                 return null;
 
             var w = wrappers[Convert.ToInt32(state.LowestBreakIteration)];           
             if (w.Exception != null)
-                throw w.Exception;
+                throw new Exception("failed during parallel execution",w.Exception);
             else
                 return w;
         }

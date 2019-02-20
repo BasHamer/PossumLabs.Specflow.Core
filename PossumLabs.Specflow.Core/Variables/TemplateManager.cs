@@ -39,6 +39,8 @@ namespace PossumLabs.Specflow.Core.Variables
         public T ApplyTemplate<T>(T item, string name = null) where T : IValueObject
         {
             var t = typeof(T);
+            if (!Templates.ContainsKey(t) && name == null)
+                return item;
             if (!Templates.ContainsKey(t) && name != null)
                 throw new Exception($"There are no templates registered for {t.Name}. The template {name} does not exist for type {t.Name}");
             if (!Templates[t].ContainsKey(name?? DefaultKey) && name != null)

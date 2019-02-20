@@ -11,40 +11,10 @@
     <RepositoryUrl>https://github.com/BasHamer/PossumLabs.Specflow.Core</RepositoryUrl>
     <PackageTags>BDD, SpecFlow, gherkin, cucumber</PackageTags>
     <RepositoryType>Git</RepositoryType>
-    <PackageReleaseNotes>Setting up references and notes.</PackageReleaseNotes>
-    <Description>This library extends SpecFlow with the following new capabilities;
+    <PackageReleaseNotes>First verions</PackageReleaseNotes>
+    <Description>For examples please see https://github.com/BasHamer/PossumLabs.Specflow
 
--	Domain Objects
-
--	Variables
-
-- 	Validation
-
-This allows for test cases that look like this;
-
-
-Given the Companies
-
-| Var | 
-
-| C1  |
-
-And the Users
-
-| Var | Company |
-
-| U1  |             C1 |
-
-| U2  |             C2 |
-
-When Entering 'U1.Username' into the username field
-
-Then 'C1.Name' is 'U1.Company.Name'
-
-
-
-
-Please check the repository for examples.</Description>
+This library is intended to be used with Specflow and adds variables and generic validation capabilities to Gherkin.</Description>
   </PropertyGroup>
 
   <ItemGroup>

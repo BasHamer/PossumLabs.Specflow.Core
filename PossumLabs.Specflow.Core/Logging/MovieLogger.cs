@@ -27,6 +27,7 @@ namespace PossumLabs.Specflow.Core.Logging
         private List<Tuple<TimeSpan,byte[]>> Images { get;  }
         private ScenarioMetadata ScenarioMetadata { get; }
         private MovieLoggerConfig MovieLoggerConfig { get; }
+        public bool IsEnabled { get; set; }
 
         public void StepEnd(string step)
             => StepLogger.AddMessage(Stopwatch.Elapsed, step);

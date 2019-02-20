@@ -14,8 +14,7 @@ namespace PossumLabs.Specflow.Core.Exceptions
 
         public T RetryFor<T>(Func<T> func, TimeSpan retryDuration)
         {
-            var sw = new Stopwatch();
-            sw.Start();
+            var sw = Stopwatch.StartNew();
             var exceptions = new List<Exception>();
             var retries = 0;
             while(sw.Elapsed < retryDuration)

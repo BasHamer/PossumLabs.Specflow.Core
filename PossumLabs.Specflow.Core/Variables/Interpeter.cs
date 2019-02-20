@@ -129,7 +129,7 @@ namespace PossumLabs.Specflow.Core.Variables
                     }
                     else
                     {
-                        var prop = current.GetType().GetValueMember(part);
+                        var prop = current.GetType().GetValueMember(part, StringComparison.InvariantCultureIgnoreCase);
                         if(prop == null)
                             throw new GherkinException($"The property {part} does not exist on {current.GetType().Name} " +
                                 $"please choose one of these {current.GetType().GetValueMembers().LogFormat(m => m.Name)}");
