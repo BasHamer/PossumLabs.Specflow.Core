@@ -18,4 +18,16 @@
     <ProjectReference Include="..\PossumLabs.Specflow.Core\PossumLabs.Specflow.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="FluidDataCreation\ChildObject.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="FluidDataCreation\Existing.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="FluidDataCreation\ParrentObject.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

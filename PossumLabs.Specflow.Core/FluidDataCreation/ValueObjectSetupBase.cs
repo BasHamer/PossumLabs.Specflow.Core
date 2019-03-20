@@ -10,23 +10,16 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
 {
     public abstract class ValueObjectSetupBase<T> : INotifyPropertyChanged where T:IValueObject
     {
-        protected T Item { get; }
-        public ValueObjectSetupBase(T item)
-        {
-            Item = item;
-            Propigators = new DictionaryWithDefault<string, Propigator>((propertyName) => new Propigator(propertyName, NotifyChange));
-        }
-
-        internal ValueObjectSetupBase()
-        {
-
-        }
+        protected T Item { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
         protected virtual void NotifyChange([System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
             => InvokePropertyChanged(propertyName);
+
         protected void InvokePropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
         private class Propigator
         {
             public Propigator(string propertyName, Action<string> notify)
@@ -40,13 +33,22 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
             public void Propigate(object sender, PropertyChangedEventArgs e)
                 => Notify($"{PropertyName}.{e.PropertyName}");
         }
-        private DictionaryWithDefault<string, Propigator> Propigators { get; }
+
+        private DictionaryWithDefault<string, Propigator> Propigators { get; set; }
+
         protected void Unsubscribe<X>(ValueObjectSetupBase<X> child, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
            where X : IValueObject
         {
             if (child?.PropertyChanged != null)
                 child.PropertyChanged -= Propigators[propertyName].Propigate;
         }
+
+        internal void Initialize(T item)
+        {
+            Item = item;
+            Propigators = new DictionaryWithDefault<string, Propigator>((propertyName) => new Propigator(propertyName, NotifyChange));
+        }
+
         protected void Subscribe<X>(ValueObjectSetupBase<X> child, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
             where X : IValueObject
             => child.PropertyChanged += Propigators[propertyName].Propigate;

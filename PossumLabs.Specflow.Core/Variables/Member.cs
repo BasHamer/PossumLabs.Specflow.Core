@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -40,6 +41,15 @@ namespace PossumLabs.Specflow.Core.Variables
 
         public void SetValue(object source, object value)
         {
+            if (Type.IsNumericType() && value is string)
+            {
+                var v = Convert.ChangeType(value, Property.PropertyType);
+                if (Property != null)
+                    Property.SetValue(source, v);
+                else
+                    Field.SetValue(source, v);
+                return;
+            }
             if(value is Int64 || value is Int32)
             {
                 var temp = Convert.ToInt64(value);

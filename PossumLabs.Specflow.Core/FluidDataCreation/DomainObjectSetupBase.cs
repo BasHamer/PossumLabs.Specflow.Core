@@ -10,17 +10,6 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
     public abstract class DomainObjectSetupBase<T, Tid> : ValueObjectSetupBase<T>, IDomainObjectSetupBase<T, Tid> where T : IDomainObject
         where Tid : IEquatable<Tid>
     {
-        public DomainObjectSetupBase(T item, Func<T, Tid> creator): base(item)
-        {
-            Creator = creator;
-            ActualId = new Lazy<Tid>(Create);
-        }
-
-        public DomainObjectSetupBase()
-        {
-
-        }
-
         protected override void NotifyChange([System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
         {
             if (ActualId.IsValueCreated)
@@ -57,5 +46,16 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
                 InvokePropertyChanged("Id");
             }
         }
+
+        public void Initialize<C>(T item, Func<T, Tid> creator, SetupBase<C> setupBase)
+            where C : SetupBase<C>
+        {
+            SetSetup(setupBase);
+            base.Initialize(item);
+            Creator = creator;
+            ActualId = new Lazy<Tid>(Create);
+        }
+
+        abstract protected void SetSetup(ISetup setupBase);
     }
 }

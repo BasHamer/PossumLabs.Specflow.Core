@@ -32,6 +32,9 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
 
             ParrentObjects = new RepositoryBase<ParrentObject>(Interpeter, ObjectFactory);
             ChildObjects = new RepositoryBase<ChildObject>(Interpeter, ObjectFactory);
+
+            Interpeter.Register(ParrentObjects);
+            Interpeter.Register(ChildObjects);
         }
 
         public RepositoryBase<ParrentObject> ParrentObjects { get; }

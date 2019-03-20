@@ -9,6 +9,7 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Category { get; set; }
         public int Value { get; set; }
         public ValueObject ComplexValue { get; set; }
         public ChildObject Child { get; set; }

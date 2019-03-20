@@ -7,18 +7,7 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
 {
     public class ChildObjectSetup : DomainObjectSetupBase<ChildObject,int>
     {
-        public ChildObjectSetup(ChildObject item, Func<ChildObject, int> creator, Setup setup) : base(item, creator)
-        {
-            Setup = setup;
-            ComplexValue = new ValueObjectSetup(item.ComplexValue);
-        }
-
-        public ChildObjectSetup()
-        {
-
-        }
-
-        private Setup Setup { get; }
+        
 
         public string Name
         {
@@ -26,6 +15,26 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
             set
             {
                 Item.Name = value;
+                NotifyChange();
+            }
+        }
+
+        public string Category
+        {
+            get { return Item.Category; }
+            set
+            {
+                Item.Category = value;
+                NotifyChange();
+            }
+        }
+
+        public int Value
+        {
+            get { return Item.Value; }
+            set
+            {
+                Item.Value = value;
                 NotifyChange();
             }
         }
@@ -48,5 +57,9 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
 
         public override int GetId(ChildObject item)
             => item.Id;
+
+        private Setup Setup { get; set; }
+        protected override void SetSetup(ISetup setupBase)
+            => Setup = setupBase as Setup;
     }
 }

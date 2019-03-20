@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace PossumLabs.Specflow.Core.Variables
 {
-    public class RepositoryBase<T> : IRepository, IEnumerable<KeyValuePair<string,T>>
+    public class RepositoryBase<T> : IRepository, IEnumerable<KeyValuePair<string, T>>
         where T : IValueObject
     {
         public RepositoryBase(Interpeter interpeter, ObjectFactory objectFactory)
@@ -24,19 +24,23 @@ namespace PossumLabs.Specflow.Core.Variables
         private Interpeter Interpeter { get; }
         private ObjectFactory ObjectFactory { get; }
 
-        public IValueObject this[string key] => dictionary[key];
+        public T this[string key] => (T)dictionary[key];
         public Type Type => typeof(T);
         public IEnumerable<TypeConverter> RegisteredConversions => conversions;
         public Dictionary<string, string> Defaults { get; }
 
+        IEnumerable<TypeConverter> IRepository.RegisteredConversions => throw new NotImplementedException();
+
+        IValueObject IRepository.this[string key] => throw new NotImplementedException();
+
         public void Add(string key, IValueObject item) => dictionary.Add(key, item);
-        public void Add(Dictionary<string,T> d) => d.Keys.ToList().ForEach(key=>dictionary.Add(key, d[key]));
+        public void Add(Dictionary<string, T> d) => d.Keys.ToList().ForEach(key => dictionary.Add(key, d[key]));
         public bool ContainsKey(string root) => dictionary.ContainsKey(root);
 
-        public IEnumerator<KeyValuePair<string, T>> GetEnumerator() 
+        public IEnumerator<KeyValuePair<string, T>> GetEnumerator()
             => dictionary.ToDictionary(x => x.Key, x => (T)x.Value).ToList().GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() 
+        IEnumerator IEnumerable.GetEnumerator()
             => dictionary.ToDictionary(x => x.Key, x => (T)x.Value).ToList().GetEnumerator();
 
         public void RegisterConversion<C>(Func<C, T> conversion, Predicate<C> test) =>
@@ -45,11 +49,11 @@ namespace PossumLabs.Specflow.Core.Variables
         protected virtual void SetupDefaultConversions()
         {
             RegisterConversion<object>(
-                c => (T)c, 
+                c => (T)c,
                 c => typeof(T).IsAssignableFrom(c.GetType()));
 
             RegisterConversion<string>(
-                c => JsonConvert.DeserializeObject<T>((string)c), 
+                c => JsonConvert.DeserializeObject<T>((string)c),
                 c => typeof(string).IsAssignableFrom(c.GetType()) && ((string)c).IsValidJson());
         }
 
@@ -67,7 +71,7 @@ namespace PossumLabs.Specflow.Core.Variables
 
         public Dictionary<string, object> AsDictionary()
             => dictionary.ToDictionary(
-                x => x.Key, 
+                x => x.Key,
                 x => (object)x.Value);
     }
 }

@@ -7,10 +7,6 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
 {
     public class ValueObjectSetup : ValueObjectSetupBase<ValueObject>
     {
-        public ValueObjectSetup(ValueObject item) : base(item)
-        {
-        }
-
         public string Name
         {
             get { return Item.Name; }

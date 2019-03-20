@@ -6,7 +6,7 @@ using System.Text;
 
 namespace PossumLabs.Specflow.Core.FluidDataCreation
 {
-    public abstract class SetupBase<C> where C: SetupBase<C>
+    public abstract class SetupBase<C> : ISetup where C: SetupBase<C>
     {
         public SetupBase(
           IDataCreatorFactory dataCreatorFactory,
@@ -42,7 +42,8 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
                 DataCreatorFactory.GetCreator<T>().Create(i);
                 return Activator.CreateInstance<S>().GetId(i);
             };
-            var itemSetup = (S)Activator.CreateInstance(typeof(S), item, creator, this) as S;
+            var itemSetup = (S)Activator.CreateInstance(typeof(S)) as S;
+            itemSetup.Initialize(item, creator, this);
             configurer?.Invoke(itemSetup);
             repository.Add(name, itemSetup.Final);
             return (C)this;
