@@ -5,13 +5,13 @@ using System.Text;
 
 namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
 {
-    public class ParrentObjectDataCreator : IDataCreator<ParrentObject>
+    public class ParentObjectDataCreator : IDataCreator<ParentObject>
     {
-        public ParrentObjectDataCreator()
+        public ParentObjectDataCreator()
         {
-            Store = new List<ParrentObject>();
+            Store = new List<ParentObject>();
         }
-        public ParrentObject Create(ParrentObject item)
+        public ParentObject Create(ParentObject item)
         {
             lock(Store)
             {
@@ -21,6 +21,6 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
             return item;
         }
 
-        public List<ParrentObject> Store { get; }
+        public List<ParentObject> Store { get; }
     }
 }

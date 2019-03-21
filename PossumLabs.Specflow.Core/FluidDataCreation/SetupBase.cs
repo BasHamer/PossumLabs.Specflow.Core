@@ -69,7 +69,10 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
 
         private int GetMaxNumber<T>(RepositoryBase<T> repository) where T : IValueObject
         {
-            if (repository.None())
+            if (repository.None() || 
+                repository
+                .Select(x => x.Key)
+                .Where(x => int.TryParse(x, out int junk)).None())
                 return 0;
 
             return repository

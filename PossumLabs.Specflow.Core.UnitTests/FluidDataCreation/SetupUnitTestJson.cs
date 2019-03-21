@@ -32,58 +32,58 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
         /// </summary>
         
         [TestMethod]
-        public void CreateAParrentObject()
+        public void CreateAParentObject()
         {
-            Driver.Processor(@"{""ParrentObjects"":[{""var"":""P1""}]}");
+            Driver.Processor(@"{""ParentObjects"":[{""var"":""P1""}]}");
 
-            DataCreatorFactory.ParrentObjectDataCreator.Store.Should().HaveCount(1);
-            DataCreatorFactory.ParrentObjectDataCreator.Store[0].Id.Should().Be(1);
+            DataCreatorFactory.ParentObjectDataCreator.Store.Should().HaveCount(1);
+            DataCreatorFactory.ParentObjectDataCreator.Store[0].Id.Should().Be(1);
         }
 
         [TestMethod]
-        public void CreateAParrentObjects()
+        public void CreateAParentObjects()
         {
-            Driver.Processor(@"{""ParrentObjects"":[{""count"":2}]}");
+            Driver.Processor(@"{""ParentObjects"":[{""count"":2}]}");
 
-            DataCreatorFactory.ParrentObjectDataCreator.Store.Should().HaveCount(2);
-            DataCreatorFactory.ParrentObjectDataCreator.Store[0].Id.Should().Be(1);
-            DataCreatorFactory.ParrentObjectDataCreator.Store[1].Id.Should().Be(2);
+            DataCreatorFactory.ParentObjectDataCreator.Store.Should().HaveCount(2);
+            DataCreatorFactory.ParentObjectDataCreator.Store[0].Id.Should().Be(1);
+            DataCreatorFactory.ParentObjectDataCreator.Store[1].Id.Should().Be(2);
         }
 
         [TestMethod]
-        public void CreateAParrentObjectWithACustomName()
+        public void CreateAParentObjectWithACustomName()
         {
-            Driver.Processor(@"{""ParrentObjects"":[{""var"":""P1"", ""name"":""Bob""}]}");
+            Driver.Processor(@"{""ParentObjects"":[{""var"":""P1"", ""name"":""Bob""}]}");
 
-            DataCreatorFactory.ParrentObjectDataCreator.Store.Should().HaveCount(1);
-            DataCreatorFactory.ParrentObjectDataCreator.Store[0].Id.Should().Be(1);
-            DataCreatorFactory.ParrentObjectDataCreator.Store[0].Name.Should().Be("Bob");
+            DataCreatorFactory.ParentObjectDataCreator.Store.Should().HaveCount(1);
+            DataCreatorFactory.ParentObjectDataCreator.Store[0].Id.Should().Be(1);
+            DataCreatorFactory.ParentObjectDataCreator.Store[0].Name.Should().Be("Bob");
         }
 
         [TestMethod]
-        public void CreateAParrentObjectWithACustomNameBeforeChildObject()
+        public void CreateAParentObjectWithACustomNameBeforeChildObject()
         {
-            Driver.Processor(@"{""ParrentObjects"":[{""var"":""P1"", ""name"":""Bob"", ""ChildObjects"":[{""var"":""C1""}]}]}");
+            Driver.Processor(@"{""ParentObjects"":[{""var"":""P1"", ""name"":""Bob"", ""ChildObjects"":[{""var"":""C1""}]}]}");
 
-            DataCreatorFactory.ParrentObjectDataCreator.Store.Should().HaveCount(1);
-            DataCreatorFactory.ParrentObjectDataCreator.Store[0].Id.Should().Be(1);
-            DataCreatorFactory.ParrentObjectDataCreator.Store[0].Name.Should().Be("Bob");
+            DataCreatorFactory.ParentObjectDataCreator.Store.Should().HaveCount(1);
+            DataCreatorFactory.ParentObjectDataCreator.Store[0].Id.Should().Be(1);
+            DataCreatorFactory.ParentObjectDataCreator.Store[0].Name.Should().Be("Bob");
 
             DataCreatorFactory.ChildObjectDataCreator.Store.Should().HaveCount(1);
             DataCreatorFactory.ChildObjectDataCreator.Store[0].Id.Should().Be(1);
         }
 
         [TestMethod]
-        public void CreateAParrentObjectsWithACustomNameBeforeChildObjects()
+        public void CreateAParentObjectsWithACustomNameBeforeChildObjects()
         {
-            Driver.Processor(@"{""ParrentObjects"":[{""count"":2, ""name"":""Bob"", ""ChildObjects"":[{""count"":1}]}]}");
+            Driver.Processor(@"{""ParentObjects"":[{""count"":2, ""name"":""Bob"", ""ChildObjects"":[{""count"":1}]}]}");
 
-            DataCreatorFactory.ParrentObjectDataCreator.Store.Should().HaveCount(2);
-            DataCreatorFactory.ParrentObjectDataCreator.Store[0].Id.Should().Be(1);
-            DataCreatorFactory.ParrentObjectDataCreator.Store[0].Name.Should().Be("Bob");
+            DataCreatorFactory.ParentObjectDataCreator.Store.Should().HaveCount(2);
+            DataCreatorFactory.ParentObjectDataCreator.Store[0].Id.Should().Be(1);
+            DataCreatorFactory.ParentObjectDataCreator.Store[0].Name.Should().Be("Bob");
 
-            DataCreatorFactory.ParrentObjectDataCreator.Store[1].Id.Should().Be(2);
-            DataCreatorFactory.ParrentObjectDataCreator.Store[1].Name.Should().Be("Bob");
+            DataCreatorFactory.ParentObjectDataCreator.Store[1].Id.Should().Be(2);
+            DataCreatorFactory.ParentObjectDataCreator.Store[1].Name.Should().Be("Bob");
 
             DataCreatorFactory.ChildObjectDataCreator.Store.Should().HaveCount(2);
             DataCreatorFactory.ChildObjectDataCreator.Store[0].Id.Should().Be(1);
@@ -91,37 +91,37 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
         }
 
         [TestMethod]
-        public void CreateAParrentObjectWithChildObject()
+        public void CreateAParentObjectWithChildObject()
         {
-            Driver.Processor(@"{""ParrentObjects"":[{""var"":""P1"", ""ChildObjects"":[{""var"":""C1""}]}]}");
+            Driver.Processor(@"{""ParentObjects"":[{""var"":""P1"", ""ChildObjects"":[{""var"":""C1""}]}]}");
 
-            DataCreatorFactory.ParrentObjectDataCreator.Store.Should().HaveCount(1);
-            DataCreatorFactory.ParrentObjectDataCreator.Store[0].Id.Should().Be(1);
+            DataCreatorFactory.ParentObjectDataCreator.Store.Should().HaveCount(1);
+            DataCreatorFactory.ParentObjectDataCreator.Store[0].Id.Should().Be(1);
 
             DataCreatorFactory.ChildObjectDataCreator.Store.Should().HaveCount(1);
             DataCreatorFactory.ChildObjectDataCreator.Store[0].Id.Should().Be(1);
         }
 
         [TestMethod]
-        public void CreateAParrentObjectWithChildObjectAccessingData()
+        public void CreateAParentObjectWithChildObjectAccessingData()
         {
-            Driver.Processor(@"{""ParrentObjects"":[{""var"":""P1"", ""ChildObjects"":[{""var"":""C1""}]}]}");
+            Driver.Processor(@"{""ParentObjects"":[{""var"":""P1"", ""ChildObjects"":[{""var"":""C1""}]}]}");
 
-            Setup.ParrentObjects["P1"].Id.Should().Be(1);
+            Setup.ParentObjects["P1"].Id.Should().Be(1);
 
             Setup.ChildObjects["C1"].Id.Should().Be(1);
         }
 
         [TestMethod]
-        public void CreateAParrentObjectsWithACustomNameBeforeChildObjectsAccessingData()
+        public void CreateAParentObjectsWithACustomNameBeforeChildObjectsAccessingData()
         {
-            Driver.Processor(@"{""ParrentObjects"":[{""count"":2, ""name"":""Bob"", ""ChildObjects"":[{""count"":1}]}]}");
+            Driver.Processor(@"{""ParentObjects"":[{""count"":2, ""name"":""Bob"", ""ChildObjects"":[{""count"":1}]}]}");
 
-            Setup.ParrentObjects["1"].Id.Should().Be(1);
-            Setup.ParrentObjects["1"].Name.Should().Be("Bob");
+            Setup.ParentObjects["1"].Id.Should().Be(1);
+            Setup.ParentObjects["1"].Name.Should().Be("Bob");
 
-            Setup.ParrentObjects["2"].Id.Should().Be(2);
-            Setup.ParrentObjects["2"].Name.Should().Be("Bob");
+            Setup.ParentObjects["2"].Id.Should().Be(2);
+            Setup.ParentObjects["2"].Name.Should().Be("Bob");
 
             Setup.ChildObjects["1"].Id.Should().Be(1);
             Setup.ChildObjects["2"].Id.Should().Be(2);
@@ -132,13 +132,13 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
         /// </summary>
 
         [TestMethod]
-        public void CreateAParrentObjectWithTemplates()
+        public void CreateAParentObjectWithTemplates()
         {
-            Driver.Processor(@"{""ParrentObjects"":[{""var"":""P1""},{""var"":""P2"", ""template"":""option1""},{""var"":""P3"", ""template"":""option2""}]}");
+            Driver.Processor(@"{""ParentObjects"":[{""var"":""P1""},{""var"":""P2"", ""template"":""option1""},{""var"":""P3"", ""template"":""option2""}]}");
 
-            Setup.ParrentObjects["P1"].Value.Should().Be(55);
-            Setup.ParrentObjects["P2"].Value.Should().Be(1);
-            Setup.ParrentObjects["P3"].Value.Should().Be(2);
+            Setup.ParentObjects["P1"].Value.Should().Be(55);
+            Setup.ParentObjects["P2"].Value.Should().Be(1);
+            Setup.ParentObjects["P3"].Value.Should().Be(2);
         }
 
         /// <summary>

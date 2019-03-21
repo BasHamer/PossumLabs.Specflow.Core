@@ -5,29 +5,31 @@ using System.Text;
 
 namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
 {
-    public class ParrentObjectSetup : DomainObjectSetupBase<ParrentObject, int>
+    public class ParentObjectSetup : DomainObjectSetupBase<ParentObject, int>
     {
-        public ParrentObjectSetup WithChild(string name, string template = null, Action<ChildObjectSetup> configurer = null)
+        [WithCreator("ChildObjects")]
+        public ParentObjectSetup WithChild(string name, string template = null, Action<ChildObjectSetup> configurer = null)
         {
             Setup.WithChildObject(name, template, child => {
-                child.ParrentObjectId = this.Id; // important
-                child.ParrentObject = this.Item;
+                child.ParentObjectId = this.Id; // important
+                child.ParentObject = this.Item;
                 configurer?.Invoke(child);
             });
             return this;
         }
 
-        public ParrentObjectSetup WithChilderen(int count, string template = null, Action<ChildObjectSetup> configurer = null)
+        [WithCreator("ChildObjects")]
+        public ParentObjectSetup WithChilderen(int count, string template = null, Action<ChildObjectSetup> configurer = null)
         {
             Setup.WithChildObjects(count, template, child => {
-                child.ParrentObjectId = this.Id; // important
-                child.ParrentObject = this.Item;
+                child.ParentObjectId = this.Id; // important
+                child.ParentObject = this.Item;
                 configurer?.Invoke(child);
             });
             return this;
         }
 
-        public override int GetId(ParrentObject item)
+        public override int GetId(ParentObject item)
             => item.Id;
 
         public string Name

@@ -29,10 +29,10 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
         [TestMethod]
         public void MakeSureExistingDataIsLoaded()
         {
-            Setup.ParrentObjects["OG"].Value.Should().Be(42);
-            Setup.ParrentObjects["OG"].Category.Should().Be("the OG");
+            Setup.ParentObjects["OG"].Value.Should().Be(42);
+            Setup.ParentObjects["OG"].Category.Should().Be("the OG");
 
-            DataCreatorFactory.ParrentObjectDataCreator.Store.Count.Should().Be(0);
+            DataCreatorFactory.ParentObjectDataCreator.Store.Count.Should().Be(0);
         }
     }
 }

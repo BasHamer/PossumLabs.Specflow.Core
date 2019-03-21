@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
 {
-    public class ParrentObject:IDomainObject
+    public class ParentObject:IDomainObject
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -13,7 +13,7 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
         public int Value { get; set; }
         public ValueObject ComplexValue { get; set; }
         public ChildObject Child { get; set; }
-        public string ParrentObjectId { get; internal set; }
+        public string ParentObjectId { get; internal set; }
 
         public string LogFormat()
         {

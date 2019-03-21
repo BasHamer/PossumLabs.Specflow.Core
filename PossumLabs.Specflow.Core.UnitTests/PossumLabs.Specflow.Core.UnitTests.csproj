@@ -25,7 +25,7 @@
     <None Update="FluidDataCreation\Existing.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="FluidDataCreation\ParrentObject.json">
+    <None Update="FluidDataCreation\ParentObject.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

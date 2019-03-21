@@ -13,7 +13,7 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
         public string Category { get; set; }
         public int Value { get; set; }
         public ValueObject ComplexValue { get; set; }
-        public ParrentObject ParrentObject { get; set; }
+        public ParentObject ParentObject { get; set; }
 
         public string LogFormat()
         {

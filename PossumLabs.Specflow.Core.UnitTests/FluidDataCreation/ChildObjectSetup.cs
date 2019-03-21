@@ -52,8 +52,8 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
             }
         }
 
-        public ParrentObject ParrentObject { set => Item.ParrentObject = value; }
-        public int ParrentObjectId { get; internal set; }
+        public ParentObject ParentObject { set => Item.ParentObject = value; }
+        public int ParentObjectId { get; internal set; }
 
         public override int GetId(ChildObject item)
             => item.Id;

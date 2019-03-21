@@ -113,9 +113,9 @@ namespace PossumLabs.Specflow.Core.Logging
         public void ComposeMovie()
         {
             string tempDirName = Guid.NewGuid().ToString().Replace("-","");
-            var parrentDir = new DirectoryInfo(System.Environment.CurrentDirectory);
+            var parentDir = new DirectoryInfo(System.Environment.CurrentDirectory);
             //create folder
-            var workingDir = parrentDir.CreateSubdirectory(tempDirName);
+            var workingDir = parentDir.CreateSubdirectory(tempDirName);
 
             File.WriteAllText(Path.Combine(workingDir.FullName, "filtering"), BuildFfmpegFilter());
             File.WriteAllText(Path.Combine(workingDir.FullName, "metadata"), BuildMetadataFile());

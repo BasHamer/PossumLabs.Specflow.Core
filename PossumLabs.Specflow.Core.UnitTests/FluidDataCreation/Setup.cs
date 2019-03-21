@@ -16,9 +16,9 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
            Interpeter interpeter) : base(dataCreatorFactory, objectFactory, templateManager, interpeter)
         {
 
-            ObjectFactory.Register<ParrentObject>((f) =>
+            ObjectFactory.Register<ParentObject>((f) =>
             {
-                var i = new ParrentObject();
+                var i = new ParentObject();
                 i.ComplexValue = ObjectFactory.CreateInstance<ValueObject>();
                 return i;
             });
@@ -30,25 +30,29 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
                 return i;
             });
 
-            ParrentObjects = new RepositoryBase<ParrentObject>(Interpeter, ObjectFactory);
+            ParentObjects = new RepositoryBase<ParentObject>(Interpeter, ObjectFactory);
             ChildObjects = new RepositoryBase<ChildObject>(Interpeter, ObjectFactory);
 
-            Interpeter.Register(ParrentObjects);
+            Interpeter.Register(ParentObjects);
             Interpeter.Register(ChildObjects);
         }
 
-        public RepositoryBase<ParrentObject> ParrentObjects { get; }
+        public RepositoryBase<ParentObject> ParentObjects { get; }
         public RepositoryBase<ChildObject> ChildObjects { get; }
 
-        public Setup WithParrentObject(string name, string template = null, Action<ParrentObjectSetup> configurer = null)
-            => With<ParrentObject,ParrentObjectSetup,int>(ParrentObjects, name, template, configurer);
+        [WithCreator("ParentObjects")]
+        public Setup WithParentObject(string name, string template = null, Action<ParentObjectSetup> configurer = null)
+            => With<ParentObject,ParentObjectSetup,int>(ParentObjects, name, template, configurer);
 
-        public Setup WithParrentObjects(int count, string template = null, Action<ParrentObjectSetup> configurer = null)
-            => WithMany<ParrentObject, ParrentObjectSetup, int>(ParrentObjects, WithParrentObject, count, template, configurer);
+        [WithCreator("ParentObjects")]
+        public Setup WithParentObjects(int count, string template = null, Action<ParentObjectSetup> configurer = null)
+            => WithMany<ParentObject, ParentObjectSetup, int>(ParentObjects, WithParentObject, count, template, configurer);
 
+        [WithCreator("ChildObjects")]
         public Setup WithChildObject(string name, string template = null, Action<ChildObjectSetup> configurer = null)
             => With<ChildObject, ChildObjectSetup, int>(ChildObjects, name, template, configurer);
 
+        [WithCreator("ChildObjects")]
         public Setup WithChildObjects(int count, string template = null, Action<ChildObjectSetup> configurer = null)
             => WithMany<ChildObject, ChildObjectSetup, int>(ChildObjects, WithChildObject, count, template, configurer);
     }

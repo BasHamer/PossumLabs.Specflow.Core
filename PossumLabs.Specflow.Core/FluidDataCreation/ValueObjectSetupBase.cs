@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PossumLabs.Specflow.Core.FluidDataCreation
 {
-    public abstract class ValueObjectSetupBase<T> : INotifyPropertyChanged where T:IValueObject
+    public abstract class ValueObjectSetupBase<T> : INotifyPropertyChanged, IValueObjectSetup where T:IValueObject
     {
         protected T Item { get; private set; }
 

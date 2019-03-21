@@ -25,15 +25,15 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
         private Setup Setup { get; set; }
 
         [TestMethod]
-        public void CreateAParrentObjectWithTemplates()
+        public void CreateAParentObjectWithTemplates()
         {
-            Setup.WithParrentObject("P1");
-            Setup.WithParrentObject("P2", "option1");
-            Setup.WithParrentObject("P3", "option2");
+            Setup.WithParentObject("P1");
+            Setup.WithParentObject("P2", "option1");
+            Setup.WithParentObject("P3", "option2");
 
-            Setup.ParrentObjects["P1"].Value.Should().Be(55);
-            Setup.ParrentObjects["P2"].Value.Should().Be(1);
-            Setup.ParrentObjects["P3"].Value.Should().Be(2);
+            Setup.ParentObjects["P1"].Value.Should().Be(55);
+            Setup.ParentObjects["P2"].Value.Should().Be(1);
+            Setup.ParentObjects["P3"].Value.Should().Be(2);
         }
     }
 }
