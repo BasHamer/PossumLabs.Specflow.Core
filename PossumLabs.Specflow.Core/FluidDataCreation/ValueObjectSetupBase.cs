@@ -43,7 +43,7 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
                 child.PropertyChanged -= Propigators[propertyName].Propigate;
         }
 
-        internal void Initialize(T item)
+        public void Initialize(T item)
         {
             Item = item;
             Propigators = new DictionaryWithDefault<string, Propigator>((propertyName) => new Propigator(propertyName, NotifyChange));

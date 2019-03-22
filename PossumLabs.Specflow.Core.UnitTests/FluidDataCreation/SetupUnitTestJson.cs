@@ -21,7 +21,7 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
             templateManager.Initialize(Assembly.GetExecutingAssembly());
 
             Setup = new Setup(DataCreatorFactory, factory, templateManager, interperter);
-            Driver = new SetupDriver<Setup>(Setup);
+            Driver = new SetupDriver<Setup>(Setup, interperter);
         }
 
         private Setup Setup { get; set; }
@@ -113,7 +113,7 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
         }
 
         [TestMethod]
-        public void CreateAParentObjectsWithACustomNameBeforeChildObjectsAccessingData()
+        public void CreateAParentObjectsWithACustomNameAndChildObjectsAccessingData()
         {
             Driver.Processor(@"{""ParentObjects"":[{""count"":2, ""name"":""Bob"", ""ChildObjects"":[{""count"":1}]}]}");
 
@@ -145,6 +145,20 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
         /// Object Factory
         /// </summary>
 
+        [TestMethod]
+        public void CreateLinks()
+        {
+            Driver.Processor(@"
+{""ParentObjects"":[{
+    ""var"":""P1"", 
+    ""name"":""Bob"", 
+    ""ChildObjects"":[{""var"":""C1""},{""var"":""C2""}], 
+    ""relations"":[{""first"":""C1"", ""second"":""C2""}]
+}]}");
+
+            DataCreatorFactory.ParentObjectDataCreator.Store[0].Links.Keys.Count.Should().Be(1);
+
+        }
 
     }
 }

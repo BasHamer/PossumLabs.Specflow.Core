@@ -11,58 +11,30 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
 {
     public class SetupDriver<C> where C : SetupBase<C>
     {
-        public SetupDriver(C setup)
+        public SetupDriver(C setup, Interpeter interpeter)
         {
             Setup = setup;
+            Interpeter = interpeter;
             Comparer = new IgnoreCaseEqualityComparer();
         }
-        public C Setup { get; }
 
-        public void Processor(string fileContent)
-        {
-            var configuration = DeserializeToDictionaryOrList(fileContent);
-
-            RecursiveSetup(Setup, configuration as Dictionary<string, object>);
-        }
-
+        private C Setup { get; }
+        private Interpeter Interpeter { get; }
         private IgnoreCaseEqualityComparer Comparer { get; }
 
+        public void Processor(string fileContent)
+            => RecursiveSetup(Setup, fileContent.DeserializeToDictionaryOrList() as Dictionary<string, object>);
 
         public void RecursiveSetup(object setup, Dictionary<string, object> configuration)
         {
             var setupMembers = setup.GetType().GetValueMembers();
-
-            var setupMethods = setup.GetType().GetMethods()
-                .Select(x => new
-                {
-                    method = x,
-                    attributes = x.GetCustomAttributes(typeof(WithCreatorAttribute), true).Cast<WithCreatorAttribute>().ToList(),
-                    parameterTypes = x.GetParameters().Select(y => y.ParameterType).ToList()
-                })
-                //trying to be safe
-                .Where(x =>
-                    x.attributes.Any() &&
-                    x.parameterTypes.Count == 3 &&
-                    (x.parameterTypes[0] == typeof(int) || x.parameterTypes[0] == typeof(string)) &&
-                    x.parameterTypes[1] == typeof(string) &&
-                    x.parameterTypes[2].IsGenericType &&
-                    x.parameterTypes[2].GenericTypeArguments.Length == 1
-                    )
-                //data for future processing
-                .Select(x =>
-                new
-                {
-                    method = x,
-                    type = x.parameterTypes[2].GenericTypeArguments[0],
-                    actionType = x.parameterTypes[2],
-                    single = x.parameterTypes.First() == typeof(string),
-                    jsonAttribute = x.attributes.First().Name
-                })
-                .ToList();
+            var withMethods = GetWithMethods(setup);
+            var linkMethods = GetLinkMethods(setup);
 
             var unmatched = configuration.Keys
                 .Except(setupMembers.Select(sm => sm.Name), Comparer) //property setters
-                .Except(setupMethods.Select(sm => sm.jsonAttribute), Comparer) //with setters
+                .Except(withMethods.Select(sm => sm.JsonAttribute), Comparer) //with setters
+                .Except(linkMethods.Select(sm => sm.JsonAttribute), Comparer) //with setters
                 .Except(new string[] { "var", "count", "template" }) //magic driver values
                 .ToList();
 
@@ -70,13 +42,62 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
                 throw new Exception($"{configuration.GetType().Name} does not have the properties {unmatched.LogFormat()}");
 
             ProcessValueMembers(setup, configuration, setupMembers);
+            ProcessWithCreation(setup, configuration, withMethods);
+            ProcessLinkCreation(setup, configuration, linkMethods);
+        }
 
-            foreach (var m in configuration.Keys.Where(m => setupMethods.Select(sm => sm.jsonAttribute)
-                .Any(s => Comparer.Equals(s, m))))
+        private void ProcessValueMembers(object setup, Dictionary<string, object> configuration, IEnumerable<ValueMemberInfo> setupMembers)
+        {
+            foreach (var m in configuration.Keys.Where(m => setupMembers.Select(sm => sm.Name)
+                            .Any(s => Comparer.Equals(s, m))))
+            {
+                var sm = setupMembers.First(s => Comparer.Equals(s.Name, m));
+
+                // avoid repositories
+                if (typeof(IRepository).IsAssignableFrom(sm.Type))
+                    continue;
+
+                sm.SetValue(setup, Interpeter.Get(sm.Type, configuration[m].ToString()));
+            }
+        }
+
+        private static List<WithMethod> GetWithMethods(object setup)
+            => setup.GetType().GetMethods()
+                .Select(x => new MethodCache
+                {
+                    Method = x,
+                    Attributes = x.GetCustomAttributes(typeof(WithCreatorAttribute), true).Cast<CreatorAttribute>().ToList(),
+                    ParameterTypes = x.GetParameters().Select(y => y.ParameterType).ToList()
+                })
+                //trying to be safe
+                .Where(x =>
+                    x.Attributes.Any() &&
+                    x.ParameterTypes.Count == 3 &&
+                    (x.ParameterTypes[0] == typeof(int) || x.ParameterTypes[0] == typeof(string)) &&
+                    x.ParameterTypes[1] == typeof(string) &&
+                    x.ParameterTypes[2].IsGenericType &&
+                    x.ParameterTypes[2].GenericTypeArguments.Length == 1
+                    )
+                //data for future processing
+                .Select(x =>
+                new WithMethod
+                {
+                    Method = x.Method,
+                    Type = x.ParameterTypes[2].GenericTypeArguments[0],
+                    ActionType = x.ParameterTypes[2],
+                    Single = x.ParameterTypes.First() == typeof(string),
+                    JsonAttribute = x.Attributes.First().Name
+                })
+                .ToList();
+
+        private void ProcessWithCreation(object setup, Dictionary<string, object> configuration, List<WithMethod> withMethods)
+        {
+            foreach (var m in configuration.Keys.Where(m => withMethods.Select(sm => sm.JsonAttribute)
+                            .Any(s => Comparer.Equals(s, m))))
             {
                 var children = configuration[m] as List<object>;
 
-                foreach (var child in children.Cast<Dictionary<string,object>>())
+                foreach (var child in children.Cast<Dictionary<string, object>>())
                 {
                     bool? single = null;
                     string var = null;
@@ -110,7 +131,7 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
                     if (!single.HasValue)
                         throw new InvalidOperationException($"need either var and count under {m}");
 
-                    var sm = setupMethods.FirstOrDefault(s => Comparer.Equals(s.jsonAttribute, m) && s.single == single);
+                    var sm = withMethods.FirstOrDefault(s => Comparer.Equals(s.JsonAttribute, m) && s.Single == single);
 
                     var mode = single == true ? "single" : "count";
                     if (sm == null)
@@ -119,85 +140,58 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
                     Action<dynamic> r = (i) => RecursiveSetup(i, child);
 
                     if (single == true)
-                        sm.method.method.Invoke(setup, new object[] { var, template, r });
+                        sm.Method.Invoke(setup, new object[] { var, template, r });
                     else
-                        sm.method.method.Invoke(setup, new object[] { count, template, r });
+                        sm.Method.Invoke(setup, new object[] { count, template, r });
                 }
             }
         }
 
-        private void ProcessValueMembers(object setup, Dictionary<string, object> configuration, IEnumerable<ValueMemberInfo> setupMembers)
+        private static List<LinkMethod> GetLinkMethods(object setup)
+            => setup.GetType().GetMethods()
+                .Select(x => new MethodCache
+                {
+                    Method = x,
+                    Attributes = x.GetCustomAttributes(typeof(LinkCreatorAttribute), true).Cast<CreatorAttribute>().ToList(),
+                    ParameterTypes = x.GetParameters().Select(y => y.ParameterType).ToList()
+                })
+                .Where(x=>x.Attributes.Any())
+                //data for future processing
+                .Select(x =>
+                new LinkMethod
+                {
+                    Method = x.Method,
+                    Parameters = x.Method.GetParameters().Select(p =>
+                        new LinkMethodParameter
+                        {
+                            JsonAttribute =
+                                p.GetCustomAttributes(typeof(LinkCreatorParameterAttribute), true)
+                                .Cast<LinkCreatorParameterAttribute>().First().Name,
+                            Type = p.ParameterType
+                        }).ToList(),
+                    JsonAttribute = x.Attributes.First().Name
+                })
+                .ToList();
+
+        private void ProcessLinkCreation(object setup, Dictionary<string, object> configuration, List<LinkMethod> linkMethods)
         {
-            foreach (var m in configuration.Keys.Where(m => setupMembers.Select(sm => sm.Name)
+            foreach (var m in configuration.Keys.Where(m => linkMethods.Select(sm => sm.JsonAttribute)
                             .Any(s => Comparer.Equals(s, m))))
             {
-                var sm = setupMembers.First(s => Comparer.Equals(s.Name, m));
-                if (typeof(IRepository).IsAssignableFrom(sm.Type))
-                    continue;
+                var links = configuration[m] as List<object>;
 
-                if (sm.Type.IsAssignableFrom(configuration[m].GetType()))
+                foreach (var link in links.Cast<Dictionary<string, object>>())
                 {
-                    sm.SetValue(setup, configuration[m]);
+                    var sm = linkMethods.FirstOrDefault(s => Comparer.Equals(s.JsonAttribute, m));
+                    var l = new List<object>();
+                    foreach(var p in sm.Parameters)
+                    {
+                        l.Add(Interpeter.Get(p.Type, link[p.JsonAttribute].ToString()));
+                    }
+                    sm.Method.Invoke(setup, l.ToArray());
                 }
-                else if (typeof(IValueObjectSetup).IsAssignableFrom(sm.Type))
-                {
-                    throw new NotImplementedException();
-                    //create object and recurse
-                }
-                else
-                    throw new UnsupportedException($"Unable to determine how to move from {m} into {sm.Type.Name}");
             }
         }
 
-        private object DeserializeToDictionaryOrList(string jo, bool isArray = false)
-        {
-            if (!isArray)
-            {
-                isArray = jo.Substring(0, 1) == "[";
-            }
-            if (!isArray)
-            {
-                var values = JsonConvert.DeserializeObject<Dictionary<string, object>>(jo);
-                var values2 = new Dictionary<string, object>();
-
-                foreach (KeyValuePair<string, object> d in values)
-                {
-                    if (d.Value is JObject)
-                    {
-                        values2.Add(d.Key, DeserializeToDictionaryOrList(d.Value.ToString()));
-                    }
-                    else if (d.Value is JArray)
-                    {
-                        values2.Add(d.Key, DeserializeToDictionaryOrList(d.Value.ToString(), true));
-                    }
-                    else
-                    {
-                        values2.Add(d.Key, d.Value);
-                    }
-                }
-                return values2;
-            }
-            else
-            {
-                var values = JsonConvert.DeserializeObject<List<object>>(jo);
-                var values2 = new List<object>();
-                foreach (var d in values)
-                {
-                    if (d is JObject)
-                    {
-                        values2.Add(DeserializeToDictionaryOrList(d.ToString()));
-                    }
-                    else if (d is JArray)
-                    {
-                        values2.Add(DeserializeToDictionaryOrList(d.ToString(), true));
-                    }
-                    else
-                    {
-                        values2.Add(d);
-                    }
-                }
-                return values2;
-            }
-        }
     }
 }

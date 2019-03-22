@@ -47,7 +47,7 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
             }
         }
 
-        public void Initialize<C>(T item, Func<T, Tid> creator, SetupBase<C> setupBase)
+        public virtual void Initialize<C>(T item, Func<T, Tid> creator, SetupBase<C> setupBase)
             where C : SetupBase<C>
         {
             SetSetup(setupBase);

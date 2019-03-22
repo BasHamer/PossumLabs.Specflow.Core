@@ -7,6 +7,15 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
 {
     public class ParentObjectSetup : DomainObjectSetupBase<ParentObject, int>
     {
+        public override void Initialize<C>(ParentObject item, Func<ParentObject, int> creator, SetupBase<C> setupBase)
+        {
+            base.Initialize(item, creator, setupBase);
+
+            var c = new ValueObjectSetup();
+            c.Initialize(item.ComplexValue);
+            ComplexValue = c;
+        }
+
         [WithCreator("ChildObjects")]
         public ParentObjectSetup WithChild(string name, string template = null, Action<ChildObjectSetup> configurer = null)
         {
@@ -26,6 +35,18 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
                 child.ParentObject = this.Item;
                 configurer?.Invoke(child);
             });
+            return this;
+        }
+
+        public ParentObjectSetup WithChilderen(string c1, string c2)
+            => WithChilderen(Setup.Interpeter.Get<ChildObject>(c1), Setup.Interpeter.Get<ChildObject>(c2));
+
+        [LinkCreator("relations")]
+        public ParentObjectSetup WithChilderen(
+            [LinkCreatorParameter("first")] ChildObject c1,
+            [LinkCreatorParameter("second")] ChildObject c2)
+        {
+            Item.Links.Add(c1, c2);
             return this;
         }
 
@@ -76,6 +97,7 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
         }
 
         private Setup Setup { get; set; }
+
         protected override void SetSetup(ISetup setupBase)
             => Setup = setupBase as Setup;
     }

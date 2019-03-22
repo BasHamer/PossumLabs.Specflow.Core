@@ -5,9 +5,9 @@ using System.Text;
 namespace PossumLabs.Specflow.Core.FluidDataCreation
 {
     [System.AttributeUsage(System.AttributeTargets.Method)]
-    public class WithCreatorAttribute : CreatorAttribute
+    public class LinkCreatorAttribute : CreatorAttribute
     {
-        public WithCreatorAttribute(string name) : base(name)
+        public LinkCreatorAttribute(string name) : base(name)
         { }
     }
 }

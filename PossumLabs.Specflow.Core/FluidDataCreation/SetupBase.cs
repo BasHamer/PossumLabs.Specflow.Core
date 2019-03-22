@@ -23,7 +23,7 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
         protected ObjectFactory ObjectFactory { get; }
         protected TemplateManager TemplateManager { get; }
         protected IDataCreatorFactory DataCreatorFactory { get; }
-        protected Interpeter Interpeter { get; }
+        public Interpeter Interpeter { get; }
 
         protected C With<T, S, Tid>(
             RepositoryBase<T> repository,
