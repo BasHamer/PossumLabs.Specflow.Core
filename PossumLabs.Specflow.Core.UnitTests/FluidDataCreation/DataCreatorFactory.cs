@@ -16,12 +16,17 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
         public ParentObjectDataCreator ParentObjectDataCreator { get; }
         public ChildObjectDataCreator ChildObjectDataCreator { get; }
 
-        public IDataCreator<T> GetCreator<T>() where T : IDomainObject
+        public IDataCreator<T> GetCreator<T>() where T : IValueObject
         {
             if (typeof(T) == typeof(ParentObject))
                 return ParentObjectDataCreator as IDataCreator<T>;
             if (typeof(T) == typeof(ChildObject))
                 return ChildObjectDataCreator as IDataCreator<T>;
+            throw new NotImplementedException();
+        }
+
+        public bool Supports<T>() where T : IValueObject
+        {
             throw new NotImplementedException();
         }
     }

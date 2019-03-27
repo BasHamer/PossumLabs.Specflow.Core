@@ -21,6 +21,15 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
             return item;
         }
 
+        public void Destroy(ChildObject item)
+        {
+            throw new NotImplementedException();
+        }
+
         public List<ChildObject> Store { get; }
+
+        public bool CanDestroy => false;
+
+        public Type Type => typeof(ChildObject);
     }
 }

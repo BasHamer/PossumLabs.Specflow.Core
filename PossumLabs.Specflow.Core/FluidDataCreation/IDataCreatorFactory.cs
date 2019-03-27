@@ -7,6 +7,7 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
 {
     public interface IDataCreatorFactory
     {
-        IDataCreator<T> GetCreator<T>() where T : IDomainObject;
+        IDataCreator<T> GetCreator<T>() where T : IValueObject;
+        bool Supports<T>() where T : IValueObject;
     }
 }
