@@ -22,7 +22,7 @@ namespace PossumLabs.Specflow.Core.Variables
             return new string(Enumerable.Repeat(chars, length).Select(s => s[_Random.Next(chars.Length)]).ToArray());
         }
 
-        public static string Geenrate(string type, int length)
+        public static string Generate(string type, int length)
         {
             if (!RandomizationTypes.ContainsKey(type))
                 throw new GherkinException($"the randomization type of {type} is not supported please choose one of thest {RandomizationTypes.Keys.LogFormat()}");

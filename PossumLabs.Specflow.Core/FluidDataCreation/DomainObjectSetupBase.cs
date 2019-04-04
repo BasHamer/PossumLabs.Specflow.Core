@@ -12,7 +12,7 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
     {
         protected override void NotifyChange([System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
         {
-            if (ActualId.IsValueCreated)
+            if (Created || ActualId.IsValueCreated)
                 throw new Exception($"can't set the value of {propertyName} after the item is created in storage.");
             InvokePropertyChanged(propertyName);
         }
@@ -28,8 +28,13 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
             }
         }
 
+        private bool Created { get; set; }
         private Func<T, Tid> Creator { get; set; }
-        private Tid Create() => Creator(Item);
+        private Tid Create()
+        {
+            Created = true;
+            return Creator(Item);
+        }
         private Lazy<Tid> ActualId { get; set; }
         private Tid SuppliedId { get; set; }
 
