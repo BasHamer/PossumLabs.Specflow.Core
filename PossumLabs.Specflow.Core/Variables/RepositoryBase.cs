@@ -30,9 +30,7 @@ namespace PossumLabs.Specflow.Core.Variables
         public Type Type => typeof(T);
         public IEnumerable<TypeConverter> RegisteredConversions => conversions;
         public Dictionary<string, string> Defaults { get; }
-
-        IEnumerable<TypeConverter> IRepository.RegisteredConversions => throw new NotImplementedException();
-
+        
         public void Add(string key, IValueObject item) => dictionary.Add(key, item);
         public void Add(Dictionary<string, T> d) => d.Keys.ToList().ForEach(key => dictionary.Add(key, d[key]));
         public bool ContainsKey(string root) => dictionary.ContainsKey(root);
