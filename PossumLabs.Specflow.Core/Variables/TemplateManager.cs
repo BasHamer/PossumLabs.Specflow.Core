@@ -100,7 +100,21 @@ namespace PossumLabs.Specflow.Core.Variables
                     var dynamicMemberName = existingMembers.FirstOrDefault(m => String.Equals(m, member.Name, StringComparison.CurrentCultureIgnoreCase));
                     if (dynamicMemberName == null)
                         continue;
-                    member.SetValue(o, template[dynamicMemberName].Value);
+                    var token = template[dynamicMemberName];
+                    if (token is JArray)
+                    {
+                        var a = (JArray)token;
+                        var l = (IList)member.GetValue(o);
+                        var listType = l.GetType().GetGenericArguments()[0];
+                        foreach (var i in a.Cast<dynamic>())
+                        {
+                            l.Add(((object)i.Value).TryConvertTo(listType));
+                        }
+                    }
+                    else
+                    {
+                        member.SetValue(o, template[dynamicMemberName].Value);
+                    }
                 }
             };
 

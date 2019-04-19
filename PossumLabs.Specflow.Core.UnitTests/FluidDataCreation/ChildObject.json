@@ -14,5 +14,17 @@
     "template": {
       "category": "Child Cat two"
     }
+  },
+  {
+    "name": "ListString",
+    "template": {
+      "ListOfStrings": [ "Bob", "Mary" ]
+    }
+  },
+  {
+    "name": "ListInt",
+    "template": {
+      "ListOfInts": [ 0, 2, 3 ]
+    }
   }
 ]

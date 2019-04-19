@@ -56,8 +56,21 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
                 // avoid repositories
                 if (typeof(IRepository).IsAssignableFrom(sm.Type))
                     continue;
-
-                sm.SetValue(setup, Interpeter.Get(sm.Type, configuration[m].ToString()));
+                var token = configuration[m];
+                if (token is IList)
+                {
+                    var a = (IList)token;
+                    var l = (IList)sm.GetValue(setup);
+                    var listType = l.GetType().GetGenericArguments()[0];
+                    foreach (var i in a)
+                    {
+                        l.Add(i.TryConvertTo(listType));
+                    }
+                }
+                else
+                {
+                    sm.SetValue(setup, Interpeter.Get(sm.Type, token.ToString()));
+                }
             }
         }
 

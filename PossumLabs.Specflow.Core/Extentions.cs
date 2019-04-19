@@ -77,5 +77,25 @@ namespace PossumLabs.Specflow.Core
                     return false;
             }
         }
+
+        public static object TryConvertTo(this object value, Type t)
+        {
+            
+            if (t.IsNumericType() && value is string)
+            {
+                return Convert.ChangeType(value, t);
+            }
+            if (value is Int64 || value is Int32)
+            {
+                var temp = Convert.ToInt64(value);
+                if (t == typeof(Byte))
+                    return Convert.ToByte(value);
+                else if (t == typeof(Int16))
+                    return Convert.ToInt16(value);
+                else if (t == typeof(Int32))
+                    return Convert.ToInt32(value);
+            }
+            return value;
+        }
     }
 }

@@ -113,6 +113,79 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
         }
 
         [TestMethod]
+        public void CreateChildObjectTemplatesListsData()
+        {
+            Driver.Processor(@"{""ParentObjects"":[{""var"":""P1"", ""ChildObjects"":[{""var"":""C1"", ""template"":""ListString""}, {""var"":""C2"", ""template"":""ListInt""}]}]}");
+
+            Setup.ParentObjects["P1"].Id.Should().Be(1);
+
+            Setup.ChildObjects["C1"].Id.Should().Be(1);
+        }
+
+        [TestMethod]
+        public void CreateListStringNoData()
+        {
+            Driver.Processor(@"{""ParentObjects"":[{""var"":""P1"", ""ChildObjects"":[{""var"":""C1"", ""ListOfStrings"":[]}]}]}");
+
+            Setup.ParentObjects["P1"].Id.Should().Be(1);
+
+            Setup.ChildObjects["C1"].Id.Should().Be(1);
+        }
+
+        [TestMethod]
+        public void CreateListStringData()
+        {
+            Driver.Processor(@"{""ParentObjects"":[{""var"":""P1"", ""ChildObjects"":[{""var"":""C1"", ""ListOfStrings"":[""Bob""]}]}]}");
+
+            Setup.ParentObjects["P1"].Id.Should().Be(1);
+
+            Setup.ChildObjects["C1"].Id.Should().Be(1);
+        }
+
+
+        [TestMethod]
+        public void CreateListStringsData()
+        {
+            Driver.Processor(@"{""ParentObjects"":[{""var"":""P1"", ""ChildObjects"":[{""var"":""C1"", ""ListOfStrings"":[""Bob"",""Mary""]}]}]}");
+
+            Setup.ParentObjects["P1"].Id.Should().Be(1);
+
+            Setup.ChildObjects["C1"].Id.Should().Be(1);
+        }
+
+        public void CreateListIntNoData()
+        {
+            Driver.Processor(@"{""ParentObjects"":[{""var"":""P1"", ""ChildObjects"":[{""var"":""C1"", ""ListOfInts"":[]}]}]}");
+
+            Setup.ParentObjects["P1"].Id.Should().Be(1);
+
+            Setup.ChildObjects["C1"].Id.Should().Be(1);
+        }
+
+        public void CreateListIntData()
+        {
+            Driver.Processor(@"{""ParentObjects"":[{""var"":""P1"", ""ChildObjects"":[{""var"":""C1"", ""ListOfInts"":[42]}]}]}");
+
+            Setup.ParentObjects["P1"].Id.Should().Be(1);
+
+            Setup.ChildObjects["C1"].Id.Should().Be(1);
+        }
+
+
+        [TestMethod]
+        public void CreateListIntsData()
+        {
+            Driver.Processor(@"{""ParentObjects"":[{""var"":""P1"", ""ChildObjects"":[{""var"":""C1"", ""ListOfInts"":[1,2]}]}]}");
+
+            Setup.ParentObjects["P1"].Id.Should().Be(1);
+
+            Setup.ChildObjects["C1"].Id.Should().Be(1);
+
+            Setup.ChildObjects["C1"].ListOfInts.Should().Contain(1);
+            Setup.ChildObjects["C1"].ListOfInts.Should().Contain(2);
+        }
+
+        [TestMethod]
         public void CreateAParentObjectsWithACustomNameAndChildObjectsAccessingData()
         {
             Driver.Processor(@"{""ParentObjects"":[{""count"":2, ""name"":""Bob"", ""ChildObjects"":[{""count"":1}]}]}");

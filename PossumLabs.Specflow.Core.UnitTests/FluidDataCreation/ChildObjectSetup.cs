@@ -39,6 +39,26 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
             }
         }
 
+        public List<int> ListOfInts
+        {
+            get { return Item.ListOfInts; }
+            set
+            {
+                Item.ListOfInts = value;
+                NotifyChange();
+            }
+        }
+
+        public List<string> ListOfStrings
+        {
+            get { return Item.ListOfStrings; }
+            set
+            {
+                Item.ListOfStrings = value;
+                NotifyChange();
+            }
+        }
+
         private ValueObjectSetup _ComplexValue;
         public ValueObjectSetup ComplexValue
         {

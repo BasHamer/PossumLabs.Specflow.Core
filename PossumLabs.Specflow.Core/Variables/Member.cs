@@ -39,8 +39,11 @@ namespace PossumLabs.Specflow.Core.Variables
             return Field.GetValue(source);
         }
 
+
+
         public void SetValue(object source, object value)
         {
+            //TODO: merge with TryConvertTo extension method
             if (Type.IsNumericType() && value is string)
             {
                 var v = Convert.ChangeType(value, Property.PropertyType);

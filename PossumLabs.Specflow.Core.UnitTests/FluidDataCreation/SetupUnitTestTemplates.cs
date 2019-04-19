@@ -35,5 +35,24 @@ namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
             Setup.ParentObjects["P2"].Value.Should().Be(1);
             Setup.ParentObjects["P3"].Value.Should().Be(2);
         }
+
+        [TestMethod]
+        public void CreateAChildObjectWithTemplatesInts()
+        {
+            Setup.WithChildObject("C4", "ListInt");
+
+            Setup.ChildObjects["C4"].ListOfInts.Should().Contain(0);
+            Setup.ChildObjects["C4"].ListOfInts.Should().Contain(2);
+            Setup.ChildObjects["C4"].ListOfInts.Should().Contain(3);
+        }
+
+        [TestMethod]
+        public void CreateAChildObjectWithTemplatesStrings()
+        {
+            Setup.WithChildObject("C3", "ListString");
+
+            Setup.ChildObjects["C3"].ListOfStrings.Should().Contain("Bob");
+            Setup.ChildObjects["C3"].ListOfStrings.Should().Contain("Mary");
+        }
     }
 }
