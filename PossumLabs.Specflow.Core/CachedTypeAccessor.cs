@@ -18,18 +18,18 @@ namespace PossumLabs.Specflow.Core
 
         private static ConcurrentDictionary<Type, PropertyInfo[]> Properties { get; }
         public static PropertyInfo[] CachedGetProperties(this Type t)
-            =>Properties.GetOrAdd(t, t.GetProperties(BindingFlags.Public | BindingFlags.Instance));
+            =>Properties.GetOrAdd(t, (k) => k.GetProperties(BindingFlags.Public | BindingFlags.Instance));
 
         private static ConcurrentDictionary<Type, FieldInfo[]> Fields { get; }
         public static FieldInfo[] CachedGetFields(this Type t)
-            => Fields.GetOrAdd(t, t.GetFields(BindingFlags.Public | BindingFlags.Instance));
+            => Fields.GetOrAdd(t, (k) => k.GetFields(BindingFlags.Public | BindingFlags.Instance));
 
         private static ConcurrentDictionary<Type, MethodInfo[]> Methods { get; }
         public static MethodInfo[] CachedGetMethods(this Type t)
-            => Methods.GetOrAdd(t, t.GetMethods());
+            => Methods.GetOrAdd(t, (k) => k.GetMethods());
 
         private static ConcurrentDictionary<Type, ConstructorInfo[]> Constructors { get; }
         public static ConstructorInfo[] CachedGetConstructors(this Type t)
-            => Constructors.GetOrAdd(t, t.GetConstructors(BindingFlags.Public | BindingFlags.Instance));
+            => Constructors.GetOrAdd(t, (k) => k.GetConstructors(BindingFlags.Public | BindingFlags.Instance));
     }
 }
