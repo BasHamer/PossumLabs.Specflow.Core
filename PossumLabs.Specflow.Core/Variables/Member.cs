@@ -65,10 +65,21 @@ namespace PossumLabs.Specflow.Core.Variables
                 else
                     value = temp;
             }
+
+
+            //https://stackoverflow.com/questions/3531318/convert-changetype-fails-on-nullable-types
             if (Property != null)
-                Property.SetValue(source, value);
+            {
+                Type t = Nullable.GetUnderlyingType(Property.PropertyType) ?? Property.PropertyType;
+                object safeValue = (value == null) ? null : Convert.ChangeType(value, t);
+                Property.SetValue(source, safeValue, null);
+            }
             else
+            {
+                Type t = Nullable.GetUnderlyingType(Field.FieldType) ?? Field.FieldType;
+                object safeValue = (value == null) ? null : Convert.ChangeType(value, t);
                 Field.SetValue(source, value);
+            }
         }
     }
 }
