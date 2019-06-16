@@ -8,12 +8,12 @@ using System.Text;
 namespace PossumLabs.Specflow.Core.UnitTests.Variables
 {
     [TestClass]
-    public class Interperter_Convert
+    public class InterperterUnitTest
     {
         private Interpeter Interpeter { get; }
         private ObjectFactory ObjectFactory { get; }
 
-        public Interperter_Convert()
+        public InterperterUnitTest()
         {
             ObjectFactory = new ObjectFactory();
             Interpeter = new Interpeter(ObjectFactory);
@@ -23,89 +23,67 @@ namespace PossumLabs.Specflow.Core.UnitTests.Variables
         public void ReturnNullWhenObjectNull()
             =>Interpeter.Convert(typeof(MyDomainObject), null)
                 .Should().BeNull("nulls should stay null if possible");
-        
 
+        [TestMethod]
+        public void ConvertToNullable()
+            => Interpeter.Convert(typeof(int?), Convert.ToInt32(42)).Should().Be(42);
 
+        [TestMethod]
+        public void ConvertToNullableIntFromByte()
+            => Interpeter.Convert(typeof(int?), Convert.ToByte(42)).Should().Be(42);
 
-        ////public object Convert(Type t, object o)
-        ////{
-        ////    if (o == null)
-        ////    {
-        ////        if (t.IsValueType)
-        ////            return ObjectFactory.CreateInstance(t);
-        ////        return null;
-        ////    }
+        [TestMethod]
+        public void ConvertToNullableLongFromByte()
+            => Interpeter.Convert(typeof(long?), Convert.ToByte(42)).Should().Be(42);
 
-        ////    var sourceType = o.GetType();
+        [TestMethod]
+        public void ConvertToNullableBigger()
+        => Interpeter.Convert(typeof(long?), Convert.ToInt32(42)).Should().Be(42);
 
-        ////    if (t.IsAssignableFrom(sourceType))
-        ////        return o;
+        [TestMethod]
+        public void ConvertToBigger()
+            => Interpeter.Convert(typeof(long), Convert.ToInt32(42)).Should().Be(42);
 
-        ////    var conversions = Repositories.Where(x => x.Type == t).SelectMany(x => x.RegisteredConversions).Where(c => c.Test.Invoke(o));
-        ////    if (conversions.Any())
-        ////        return conversions.First().Conversion.Invoke(o);
+        [TestMethod]
+        public void ConvertfromString()
+            => Interpeter.Convert(typeof(int), "42").Should().Be(42);
 
-        ////    //handle nullables
-        ////    var targetType = t;
-        ////    if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>))
-        ////        targetType = Nullable.GetUnderlyingType(targetType);
+        [TestMethod]
+        public void ConvertToNullableFromString()
+            => Interpeter.Convert(typeof(int?), "42").Should().Be(42);
 
-        ////    var convertConversions = typeof(System.Convert).CachedGetMethods()
-        ////        .Where(x => x.ReturnType == targetType && x.Name.StartsWith("To") && x.GetParameters().Any(p => p.ParameterType == sourceType));
-
-        ////    if (convertConversions.Any())
-        ////        return convertConversions.First().Invoke(null, o.AsObjectArray());
-
-        ////    if (targetType.IsEnum && sourceType == typeof(string))
-        ////        return Enum.Parse(targetType, o as string);
-
-        ////    if (targetType.GetConstructors().Where(x => x.IsPublic && !x.IsStatic).Select(c => c.GetParameters())
-        ////        .Any(x => x.One() && x.First().ParameterType == sourceType))
-        ////        return Activator.CreateInstance(targetType, o);
-
-        ////    var parseMethod = targetType.CachedGetMethods().Where(m => m.IsStatic && m.IsPublic)
-        ////        .Where(m => m.Name == "Parse" && m.GetParameters().Length == 1 && m.GetParameters().First().ParameterType == sourceType);
-
-        ////    if (parseMethod.Any())
-        ////        return parseMethod.First().Invoke(null, o.AsObjectArray());
-
-        ////    if (targetType == typeof(string))
-        ////        return o.ToString();
-
-        ////    if (sourceType == typeof(string) && ((string)o).IsValidJson())
-        ////        return JsonConvert.DeserializeObject((string)o, t);
-
-        ////    // generic lists
-        ////    Type genericType = null;
-        ////    foreach (Type interfaceType in targetType.GetInterfaces())
-        ////    {
-        ////        if (interfaceType.IsGenericType &&
-        ////            interfaceType.GetGenericTypeDefinition()
-        ////            == typeof(IList<>))
-        ////        {
-        ////            genericType = interfaceType.GetGenericArguments()[0];
-        ////            break;
-        ////        }
-        ////    }
-        ////    if (genericType != null)
-        ////    {
-        ////        var collection = (IList)Activator.CreateInstance(targetType);
-        ////        if (sourceType == genericType || sourceType.IsInstanceOfType(genericType))
-        ////            collection.Add(o);
-        ////        else if (sourceType == typeof(string))
-        ////            foreach (var expression in ((string)o).Split(',').Select(x => x.Trim()).Where(x => !String.IsNullOrEmpty(x)))
-        ////                collection.Add(Get(genericType, expression));
-        ////        return collection;
-        ////    }
-
-        ////    if (sourceType == typeof(string) && (string)o == "null")
-        ////        return null;
-
-        ////    throw new GherkinException($"Unable to convert from {sourceType} to {t}");
-        ////}
-    }
-
-    public class InterperterUnitTest
-    {
+        [TestMethod]
+        public void ConvertBulk()
+        {
+            var types = new List<Type> {
+                typeof(byte),
+                typeof(int),
+                typeof(long),
+                typeof(Int16),
+                typeof(UInt16),
+                typeof(Int32),
+                typeof(UInt32),
+                typeof(Int64),
+                typeof(UInt64),
+                typeof(byte?),
+                typeof(int?),
+                typeof(long?),
+                typeof(Nullable<Int16>),
+                typeof(Nullable<UInt16>),
+                typeof(Nullable<Int32>),
+                typeof(Nullable<UInt32>),
+                typeof(Nullable<Int64>),
+                typeof(Nullable<UInt64>)
+            };
+            foreach (var targetType in types)
+            {
+                foreach (var sourceType in types)
+                {
+                    var i = Interpeter.Convert(sourceType, "42");
+                    i.Should().Be(42);
+                    Interpeter.Convert(targetType, i).Should().Be(42);
+                }
+            }
+        }
     }
 }

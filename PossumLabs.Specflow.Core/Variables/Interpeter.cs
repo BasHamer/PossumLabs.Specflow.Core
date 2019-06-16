@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -151,28 +152,43 @@ namespace PossumLabs.Specflow.Core.Variables
 
         public X Convert<X>(object o) => (X)Convert(typeof(X), o);
 
-        public object Convert(Type t, object o)
+        //not used yet, but might be useful at some point.
+        public object Cast(object data, Type Type)
+        {
+            var DataParam = Expression.Parameter(typeof(object), "data");
+            var Body = Expression.Block(Expression.Convert(Expression.Convert(DataParam, data.GetType()), Type));
+
+            var Run = Expression.Lambda(Body, DataParam).Compile();
+            var ret = Run.DynamicInvoke(data);
+            return ret;
+        }
+
+        public object Convert(Type targetType, object o)
         {
             if (o == null)
             {
-                if (t.IsValueType)
-                    return ObjectFactory.CreateInstance(t);
+                if (targetType.IsValueType)
+                    return ObjectFactory.CreateInstance(targetType);
                 return null;
             }
 
             var sourceType = o.GetType();
 
-            if (t.IsAssignableFrom(sourceType))
-                return o;
+            //handle nullables
+            if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                var r = Convert(Nullable.GetUnderlyingType(targetType), o);
+                //var c = System.Convert.ChangeType(r, targetType);
+                var c = Cast(r, targetType);
+                return c;
+            }
 
-            var conversions = Repositories.Where(x => x.Type == t).SelectMany(x => x.RegisteredConversions).Where(c => c.Test.Invoke(o));
+            if (targetType.IsAssignableFrom(sourceType))
+                return System.Convert.ChangeType(o, targetType);
+
+            var conversions = Repositories.Where(x => x.Type == targetType).SelectMany(x => x.RegisteredConversions).Where(c => c.Test.Invoke(o));
             if (conversions.Any())
                 return conversions.First().Conversion.Invoke(o);
-
-            //handle nullables
-            var targetType = t;
-            if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                targetType = Nullable.GetUnderlyingType(targetType);
 
             var convertConversions = typeof(System.Convert).CachedGetMethods()
                 .Where(x => x.ReturnType == targetType && x.Name.StartsWith("To") && x.GetParameters().Any(p => p.ParameterType == sourceType));
@@ -197,7 +213,7 @@ namespace PossumLabs.Specflow.Core.Variables
                 return o.ToString();
 
             if(sourceType == typeof(string) && ((string)o).IsValidJson())
-                return JsonConvert.DeserializeObject((string)o, t);
+                return JsonConvert.DeserializeObject((string)o, targetType);
 
             // generic lists
             Type genericType = null;
@@ -225,7 +241,7 @@ namespace PossumLabs.Specflow.Core.Variables
             if (sourceType == typeof(string) && (string)o == "null")
                 return null;
 
-            throw new GherkinException($"Unable to convert from {sourceType} to {t}");
+            throw new GherkinException($"Unable to convert from {sourceType} to {targetType}");
         }
     }
 }
