@@ -8,12 +8,12 @@ using System.Text;
 namespace PossumLabs.Specflow.Core.UnitTests.Variables
 {
     [TestClass]
-    public class InterperterUnitTest
+    public class InterperterConvertTest
     {
         private Interpeter Interpeter { get; }
         private ObjectFactory ObjectFactory { get; }
 
-        public InterperterUnitTest()
+        public InterperterConvertTest()
         {
             ObjectFactory = new ObjectFactory();
             Interpeter = new Interpeter(ObjectFactory);

@@ -178,13 +178,16 @@ namespace PossumLabs.Specflow.Core.Variables
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 var r = Convert(Nullable.GetUnderlyingType(targetType), o);
-                var c = System.Convert.ChangeType(r, targetType);
-                //var c = Cast(r, targetType);
+                var c = Cast(r, targetType);
                 return c;
             }
 
             if (targetType.IsAssignableFrom(sourceType))
+            {
+                if(targetType.GetInterfaces().Contains(typeof(IConvertible)))
+                        return System.Convert.ChangeType(o, targetType);
                 return o;
+            }
 
             var conversions = Repositories.Where(x => x.Type == targetType).SelectMany(x => x.RegisteredConversions).Where(c => c.Test.Invoke(o));
             if (conversions.Any())
