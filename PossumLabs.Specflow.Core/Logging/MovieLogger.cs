@@ -24,7 +24,7 @@ namespace PossumLabs.Specflow.Core.Logging
         private SrtLogger StepLogger { get; }
         private SrtLogger OtherLogger { get; }
         private Stopwatch Stopwatch { get; }
-        private List<Tuple<TimeSpan,byte[]>> Images { get;  }
+        private List<Tuple<TimeSpan, byte[]>> Images { get; }
         private ScenarioMetadata ScenarioMetadata { get; }
         private MovieLoggerConfig MovieLoggerConfig { get; }
         public bool IsEnabled { get; set; }
@@ -32,8 +32,14 @@ namespace PossumLabs.Specflow.Core.Logging
         public void StepEnd(string step)
             => StepLogger.AddMessage(Stopwatch.Elapsed, step);
 
+
         public void AddScreenShot(byte[] image)
-            => Images.Add(new Tuple<TimeSpan, byte[]>(Stopwatch.Elapsed, image));
+        {
+            lock (Images)
+            {
+                Images.Add(new Tuple<TimeSpan, byte[]>(Stopwatch.Elapsed, image));
+            }
+        }
 
         private string BuildFfmpegFilter()
         {
@@ -43,13 +49,15 @@ namespace PossumLabs.Specflow.Core.Logging
 
             builder.Append($"zoompan=d=0");
             var oldTimespan = new TimeSpan();
-            for (int i = 0; i < Images.Count; i++)
+            lock (Images)
             {
-                var current = Images[i].Item1;
-                builder.Append($"+'{Convert.ToInt32(25 * (current.TotalSeconds - oldTimespan.TotalSeconds))}*eq(in,{i+1})'");
-                oldTimespan = current;
+                for (int i = 0; i < Images.Count; i++)
+                {
+                    var current = Images[i].Item1;
+                    builder.Append($"+'{Convert.ToInt32(25 * (current.TotalSeconds - oldTimespan.TotalSeconds))}*eq(in,{i + 1})'");
+                    oldTimespan = current;
+                }
             }
-
             return builder.ToString();
         }
         private string BuildMetadataFile()
@@ -123,13 +131,18 @@ namespace PossumLabs.Specflow.Core.Logging
             File.WriteAllText(Path.Combine(workingDir.FullName, "debug.srt"), OtherLogger.GetLogs());
 
             var index = 0;
+
             //create files
-            foreach(var file in Images)
+            lock (Images)
             {
-                var filename = "img" + index.ToString("D4") + ".png";
-                File.WriteAllBytes(Path.Combine(workingDir.FullName, filename), file.Item2);
-                index++;
+                foreach (var file in Images)
+                {
+                    var filename = "img" + index.ToString("D4") + ".png";
+                    File.WriteAllBytes(Path.Combine(workingDir.FullName, filename), file.Item2);
+                    index++;
+                }
             }
+
             //create create images
 
             var encodeArguments =
