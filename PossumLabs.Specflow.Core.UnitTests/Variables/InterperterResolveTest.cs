@@ -24,6 +24,8 @@ namespace PossumLabs.Specflow.Core.UnitTests.Variables
 
         public class TestType : IValueObject {
             public string a { get; set; }
+            public TestType[] array { get; set; }
+            public List<TestType> list { get; set; }
         }
 
         public class ParrentType : TestType
@@ -77,6 +79,55 @@ namespace PossumLabs.Specflow.Core.UnitTests.Variables
             r.Add("k1", new ParrentType { a = "test" });
             ((ParrentType)Interpeter.Get<TestType>("k1")).a
                 .Should().Be("test");
+        }
+
+        //TODO:Bas
+        [TestMethod]
+        public void SimpleIndexedArray()
+        {
+            Repository.Add("k1", new TestType { a = "test", array = new[] { new TestType { a = "kid" } } });
+            Interpeter.Get<string>("k1.array[0].a")
+                .Should().Be("kid");
+        }
+
+        [TestMethod]
+        public void SimpleIndexedList()
+        {
+            Repository.Add("k1", new TestType { a = "test", list = new List<TestType> { new TestType { a = "kid" } } });
+            Interpeter.Get<string>("k1.list[0].a")
+                .Should().Be("kid");
+        }
+
+        [TestMethod]
+        public void ExceptionIndexedArrayNull()
+        {
+            Repository.Add("k1", new TestType { a = "test" });
+            Interpeter.Invoking(x => x.Get<string>("k1.array[0].a"))
+                .Should().Throw<GherkinException>().WithMessage("Unable to resolve [0] of k1.array[0].a");
+        }
+
+        [TestMethod]
+        public void ExceptionIndexedListNull()
+        {
+            Repository.Add("k1", new TestType { a = "test" });
+            Interpeter.Invoking(x => x.Get<string>("k1.list[0].a"))
+                .Should().Throw<GherkinException>().WithMessage("Unable to resolve [0] of k1.list[0].a");
+        }
+
+        [TestMethod]
+        public void ExceptionIndexedArrayOutOfRange()
+        {
+            Repository.Add("k1", new TestType { a = "test", array = new[] { new TestType { a = "kid" } } });
+            Interpeter.Invoking(x=>x.Get<string>("k1.array[1].a"))
+                .Should().Throw<GherkinException>().WithMessage("Index [1] of k1.array[1].a is out of range, there are not enough elements");
+        }
+
+        [TestMethod]
+        public void ExceptionIndexedListOutOfRange()
+        {
+            Repository.Add("k1", new TestType { a = "test", list = new List<TestType> { new TestType { a = "kid" } } });
+            Interpeter.Invoking(x => x.Get<string>("k1.list[1].a"))
+                .Should().Throw<GherkinException>().WithMessage("Argument [1] of k1.list[1].a is out of range, there are not enough elements");
         }
     }
 }

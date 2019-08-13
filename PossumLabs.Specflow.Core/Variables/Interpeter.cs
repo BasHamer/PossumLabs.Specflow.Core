@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -77,11 +78,33 @@ namespace PossumLabs.Specflow.Core.Variables
                         throw new GherkinException($"Unable to resolve [{ index }] of { path.Aggregate((x, y) => x + '.' + y)}");
 
                     var indexers = source.GetType().CachedGetProperties().Where(p => p.Name == "Item" && p.GetIndexParameters().One());
-                    if (!indexers.Any())
+                    if (indexers.None())
+                    {
+                        if (source.GetType().IsArray)
+                        {
+                            try
+                            {
+                                return ((Array)source).GetValue(index);
+                            }
+                            catch (IndexOutOfRangeException)
+                            {
+                                 throw new GherkinException($"Index [{ index }] of { path.Aggregate((x, y) => x + '.' + y)} is out of range, there are not enough elements");
+                            }
+                        }
                         throw new GherkinException($"The type of {source.GetType()} does not support [{ index }] of { path.Aggregate((x, y) => x + '.' + y)}");
+                    }
 
-                    //TODO: v2 add exception handeling
-                    return indexers.First().GetValue(source,index.AsObjectArray());
+                    try
+                    {
+                        return indexers.First().GetValue(source, index.AsObjectArray());
+                    }
+                    catch (TargetInvocationException e)
+                    {
+                        if (e.InnerException is ArgumentOutOfRangeException)
+                            throw new GherkinException($"Argument [{ index }] of { path.Aggregate((x, y) => x + '.' + y)} is out of range, there are not enough elements");
+                        else
+                            throw;
+                    }
                 };
             }
             else
