@@ -5,13 +5,18 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using PossumLabs.Specflow.Core.Configuration;
+using PossumLabs.Specflow.Core.Files;
 
 namespace PossumLabs.Specflow.Core.Logging
 {
     public class MovieLogger
     {
-        public MovieLogger(MovieLoggerConfig movieLoggerConfig, ScenarioMetadata scenarioMetadata)
+        public MovieLogger(
+            FileManager fileManager,
+            MovieLoggerConfig movieLoggerConfig, 
+            ScenarioMetadata scenarioMetadata)
         {
+            FileManager = fileManager;
             ScenarioMetadata = scenarioMetadata;
             MovieLoggerConfig = movieLoggerConfig;
 
@@ -21,6 +26,7 @@ namespace PossumLabs.Specflow.Core.Logging
             Images = new List<Tuple<TimeSpan, byte[]>>();
         }
 
+        private FileManager FileManager { get; }
         private SrtLogger StepLogger { get; }
         private SrtLogger OtherLogger { get; }
         private Stopwatch Stopwatch { get; }
@@ -120,15 +126,16 @@ namespace PossumLabs.Specflow.Core.Logging
 
         public void ComposeMovie()
         {
+            
             string tempDirName = Guid.NewGuid().ToString().Replace("-","");
             var parentDir = new DirectoryInfo(System.Environment.CurrentDirectory);
             //create folder
             var workingDir = parentDir.CreateSubdirectory(tempDirName);
 
-            File.WriteAllText(Path.Combine(workingDir.FullName, "filtering"), BuildFfmpegFilter());
-            File.WriteAllText(Path.Combine(workingDir.FullName, "metadata"), BuildMetadataFile());
-            File.WriteAllText(Path.Combine(workingDir.FullName, "step.srt"), StepLogger.GetLogs());
-            File.WriteAllText(Path.Combine(workingDir.FullName, "debug.srt"), OtherLogger.GetLogs());
+            FileManager.PersistFile(BuildFfmpegFilter(), "filtering");
+            FileManager.PersistFile(BuildMetadataFile(), "metadata");
+            FileManager.PersistFile(StepLogger.GetLogs(), "step.srt");
+            FileManager.PersistFile(OtherLogger.GetLogs(), "debug.srt");
 
             var index = 0;
 
@@ -138,7 +145,7 @@ namespace PossumLabs.Specflow.Core.Logging
                 foreach (var file in Images)
                 {
                     var filename = "img" + index.ToString("D4") + ".png";
-                    File.WriteAllBytes(Path.Combine(workingDir.FullName, filename), file.Item2);
+                    FileManager.PersistFile(file.Item2, filename);
                     index++;
                 }
             }
@@ -168,7 +175,7 @@ namespace PossumLabs.Specflow.Core.Logging
             sb.AppendLine(chapterArguments);
             sb.AppendLine(subtitleArguments);
 
-            File.WriteAllText(Path.Combine(workingDir.FullName, "moviefy.ps1"), sb.ToString());
+            FileManager.PersistFile(sb.ToString(), "moviefy.ps1");
         }
 
 

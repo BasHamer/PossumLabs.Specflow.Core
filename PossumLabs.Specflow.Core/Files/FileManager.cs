@@ -11,16 +11,18 @@ namespace PossumLabs.Specflow.Core.Files
         public FileManager(DatetimeManager datetimeManager)
         {
             Start = datetimeManager.Now();
-            Index = 0;
             IConfiguration config = new ConfigurationBuilder()
                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                .AddEnvironmentVariables()
                .Build();
 
-            BaseFolder = new DirectoryInfo(config["logFolder"]);
+            ConfigFodler = config["logFolder"] ?? "logs";
 
-            if(!BaseFolder.Exists)
-                BaseFolder.Create();
+            if(!Path.IsPathRooted(ConfigFodler))
+                ConfigFodler = Path.Combine(
+                        new FileInfo(this.GetType().Assembly.Location).DirectoryName,
+                        ConfigFodler);
+
             Order = 1;
         }
 
@@ -29,19 +31,45 @@ namespace PossumLabs.Specflow.Core.Files
             FeatureName = featureName;
             ScenarioName = scenarioName;
             ExampleName = example;
+
+            ConfigFodler = Path.Combine(
+                ConfigFodler,
+                $"{FeatureName}-{ScenarioName}-{ExampleName}-{Start.ToString("yyyyMMdd_HHmmss")}"
+                    // < (less than)
+                    .Replace('<', ' ')
+                    // > (greater than)
+                    .Replace('>', ' ')
+                    // : (colon - sometimes works, but is actually NTFS Alternate Data Streams)
+                    .Replace(':', ' ')
+                    // " (double quote)
+                    .Replace('"', ' ')
+                    // / (forward slash)
+                    .Replace('/', ' ')
+                    // \ (backslash)
+                    .Replace('\\', ' ')
+                    // | (vertical bar or pipe)
+                    .Replace('|', ' ')
+                    // ? (question mark)
+                    .Replace('?', ' ')
+                    // * (asterisk)
+                    .Replace('*', ' '));
+
+            BaseFolder = new DirectoryInfo(ConfigFodler);
+
+            if (!BaseFolder.Exists)
+                BaseFolder.Create();
         }
         private DateTime Start { get; }
-        private int Index { get; }
-
+        private string ConfigFodler { get; set; }
         private string FeatureName { get; set; }
         private string ScenarioName { get; set; }
         private string ExampleName { get; set; }
-        private DirectoryInfo BaseFolder { get; }
+        private DirectoryInfo BaseFolder { get; set; }
 
         private int Order { get; set; }
 
         private string GetFileName(string type, string extension)
-            => $"{FeatureName}-{ScenarioName}-{ExampleName}-{Start.ToString("yyyyMMdd_HHmmss")}-{Order++}-{type}.{extension}"
+            => $"{type}-{Order++}.{extension}"
             // < (less than)
             .Replace('<', ' ')
             // > (greater than)
@@ -61,31 +89,27 @@ namespace PossumLabs.Specflow.Core.Files
             // * (asterisk)
             .Replace('*', ' ');
 
+        public Uri PersistFile(IFile file, string type, string extention)
+            => PersistFile(file.Stream, type, extention);
 
-        public Uri Persist(IFile file)
+        public Uri PersistFile(byte[] file, string type, string extention)
+            => PersistFile(new MemoryStream(file), type, extention);
+
+        public Uri PersistFile(Stream file, string type, string extention)
+            => PersistFile(file, GetFileName(type, extention));
+
+        public Uri PersistFile(string content, string exactName)
+            => PersistFile(Encoding.ASCII.GetBytes(content), exactName);
+
+        public Uri PersistFile(byte[] file, string exactName)
+            => PersistFile(new MemoryStream(file), exactName);
+
+        public Uri PersistFile(Stream file, string exactName)
         {
-            Uri path = null;
-            using (var fileStream = File.Create(path.ToString()))
-            {
-                file.Stream.Seek(0, SeekOrigin.Begin);
-                file.Stream.CopyTo(fileStream);
-            }
-            return path;
-        }
-
-        public Uri CreateFile(byte[] file, string type, string extention)
-            => CreateFile(new MemoryStream(file), type, extention);
-
-        public Uri CreateFile(Stream file, string type, string extention)
-        {
-            var name = GetFileName(type, extention);
-            var info = new FileInfo(Path.Combine(BaseFolder.FullName, name));
+            var info = new FileInfo(Path.Combine(BaseFolder.FullName, exactName));
             var w = info.Create();
             file.CopyToAsync(w).ContinueWith((x) => w.Close());
             return new Uri(info.FullName);
         }
-
-        public Uri CreateFile(string file, string type, string extention)
-            => CreateFile(File.ReadAllBytes(file), type, extention);
     }
 }

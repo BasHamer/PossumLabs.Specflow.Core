@@ -6,6 +6,10 @@ namespace PossumLabs.Specflow.Core
 {
     public class DatetimeManager
     {
-        public Func<DateTime> Now { get; set; }
+        public DatetimeManager(Func<DateTime> now)
+        {
+            Now = now;
+        }
+        public Func<DateTime> Now { get; }
     }
 }
