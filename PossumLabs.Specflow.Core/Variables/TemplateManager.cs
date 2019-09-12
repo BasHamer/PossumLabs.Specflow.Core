@@ -23,7 +23,7 @@ namespace PossumLabs.Specflow.Core.Variables
         private Dictionary<Type, Dictionary<string, Action<object>>> Templates { get; }
         private string DefaultKey { get; }
 
-        public void Register<T>(Action<T> template, string name = null) where T:IDomainObject
+        public void Register<T>(Action<T> template, string name = null) where T:IEntity
         {
             var t = typeof(T);
             Register(name, t, (o)=>template((T)o));
@@ -56,7 +56,7 @@ namespace PossumLabs.Specflow.Core.Variables
             var fileInfo = new FileInfo(assembly.Location);
             var directoryInfo = fileInfo.Directory;
             var dlls = GetAllFiles(directoryInfo, "dll").Select(f=>f.Name).ToList();
-            var types = GetAllTypesOf<IDomainObject>(dlls, assembly).Where(t=>!t.IsAbstract && !t.IsInterface).ToList();
+            var types = GetAllTypesOf<IEntity>(dlls, assembly).Where(t=>!t.IsAbstract && !t.IsInterface).ToList();
             var simplenames = types.Select(t => t.Name);
 
             var files = GetAllFiles(directoryInfo, "json").Where(f => simplenames.Contains(Path.GetFileNameWithoutExtension(f.Name)));

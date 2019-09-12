@@ -6,7 +6,7 @@ using System.Text;
 namespace PossumLabs.Specflow.Core.UnitTests.FluidDataCreation
 {
     
-    public class ChildObject : IDomainObject
+    public class ChildObject : IEntity
     {
         public ChildObject()
         {

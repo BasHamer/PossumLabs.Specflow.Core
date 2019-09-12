@@ -4,7 +4,7 @@ using System.Text;
 
 namespace PossumLabs.Specflow.Core.Variables
 {
-    public interface IDomainObject :IValueObject
+    public interface IEntity :IValueObject
     {
         string LogFormat();
     }

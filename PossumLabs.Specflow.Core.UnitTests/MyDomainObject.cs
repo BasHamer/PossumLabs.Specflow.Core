@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PossumLabs.Specflow.Core.UnitTests
 {
-    class MyDomainObject : IDomainObject
+    class MyDomainObject : IEntity
     {
         public string MyString { get; set; }
         public int MyInt { get; set; }

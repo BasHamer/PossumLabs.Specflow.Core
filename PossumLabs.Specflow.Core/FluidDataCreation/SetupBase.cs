@@ -31,7 +31,7 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
             string template = null,
             Action<S> configurer = null)
 
-            where T : IDomainObject
+            where T : IEntity
             where S : DomainObjectSetupBase<T, Tid>
             where Tid : IEquatable<Tid>
         {
@@ -56,7 +56,7 @@ namespace PossumLabs.Specflow.Core.FluidDataCreation
             string template = null,
             Action<S> configurer = null)
 
-            where T : IDomainObject
+            where T : IEntity
             where S : DomainObjectSetupBase<T, Tid>
             where Tid : IEquatable<Tid>
         {

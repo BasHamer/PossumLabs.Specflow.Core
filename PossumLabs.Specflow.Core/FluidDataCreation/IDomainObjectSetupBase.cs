@@ -4,7 +4,7 @@ using PossumLabs.Specflow.Core.Variables;
 namespace PossumLabs.Specflow.Core.FluidDataCreation
 {
     public interface IDomainObjectSetupBase<T, Tid>
-        where T : IDomainObject
+        where T : IEntity
         where Tid : IEquatable<Tid>
     {
 

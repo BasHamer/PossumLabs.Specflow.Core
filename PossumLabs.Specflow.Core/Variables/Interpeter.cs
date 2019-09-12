@@ -40,7 +40,7 @@ namespace PossumLabs.Specflow.Core.Variables
                     Objects = r.repository.AsDictionary().Select(kv=>new ObjectView
                     {
                         var = kv.Key,
-                        LogFormat = (kv.Value is IDomainObject) ? ((IDomainObject)kv.Value).LogFormat():null, 
+                        LogFormat = (kv.Value is IEntity) ? ((IEntity)kv.Value).LogFormat():null, 
                         Values = r.properties.Select(p=>p.GetValue(kv.Value)?.ToString()).ToList()
                     }).ToList()
                 }).ToList()

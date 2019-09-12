@@ -3,7 +3,7 @@ using System.IO;
 
 namespace PossumLabs.Specflow.Core.Files
 {
-    public interface IFile: IDomainObject
+    public interface IFile: IEntity
     {
         Stream Stream { get; }
     }

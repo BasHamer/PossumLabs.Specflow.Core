@@ -22,7 +22,7 @@ namespace PossumLabs.Specflow.Core.Variables
         {
             var fileInfo = new FileInfo(assembly.Location);
             var directoryInfo = fileInfo.Directory;
-            var types = GetAllTypesOf<IDomainObject>(assembly).Where(t => !t.IsAbstract && !t.IsInterface).ToList();
+            var types = GetAllTypesOf<IEntity>(assembly).Where(t => !t.IsAbstract && !t.IsInterface).ToList();
             var simplenames = types.Select(t => t.Name);
 
             var files = GetAllFiles(directoryInfo, "json").Where(f=> string.Equals(f.Name, "existing.json", StringComparison.InvariantCultureIgnoreCase));
