@@ -14,11 +14,11 @@ namespace PossumLabs.Specflow.Core.Logging
         {
             FontPercentage = config.SizePercentage;
             
-            var properties = typeof(SKColors).GetProperties();
-            if (properties.Any(p => p.Name == config.Color))
-                Color = (SKColor)properties.First(p => p.Name == config.Color).GetValue(null);
+            var fields = typeof(SKColors).GetFields();
+            if (fields.Any(p => p.Name == config.Color))
+                Color = (SKColor)fields.First(p => p.Name == config.Color).GetValue(null);
             else
-                throw new GherkinException($"The Brush color of '{config.Color}' is invalid, please use one of these {properties.LogFormat(p => p.Name)}");
+                throw new GherkinException($"The Brush color of '{config.Color}' is invalid, please use one of these {fields.LogFormat(p => p.Name)}");
             if (config.SizePercentage < 0 || config.SizePercentage > 1)
                 throw new GherkinException($"The sizePercentage of {config.SizePercentage} is invalid, please provide a value between 0 and 1");
         }

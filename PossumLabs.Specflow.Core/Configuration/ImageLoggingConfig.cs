@@ -10,7 +10,7 @@ namespace PossumLabs.Specflow.Core.Configuration
         public ImageLoggingConfig()
         {
             SizePercentage = .05;
-            Color = "DarkOrange";
+            Color = "Orange";
         }
 
         [ConfigurationMember("SizePercentage")]
