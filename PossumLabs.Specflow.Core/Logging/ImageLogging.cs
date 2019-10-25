@@ -1,7 +1,7 @@
 ﻿using PossumLabs.Specflow.Core.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using SkiaSharp;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,9 +13,10 @@ namespace PossumLabs.Specflow.Core.Logging
         public ImageLogging(ImageLoggingConfig config )
         {
             FontPercentage = config.SizePercentage;
-            var properties = typeof(Brushes).GetProperties();
+            
+            var properties = typeof(SKColors).GetProperties();
             if (properties.Any(p => p.Name == config.Color))
-                Brush = (Brush)properties.First(p => p.Name == config.Color).GetValue(null);
+                Color = (SKColor)properties.First(p => p.Name == config.Color).GetValue(null);
             else
                 throw new GherkinException($"The Brush color of '{config.Color}' is invalid, please use one of these {properties.LogFormat(p => p.Name)}");
             if (config.SizePercentage < 0 || config.SizePercentage > 1)
@@ -23,25 +24,37 @@ namespace PossumLabs.Specflow.Core.Logging
         }
 
         private double FontPercentage { get; }
-        private Brush Brush { get; }
+        private SKColor Color { get; }
 
         public byte[] AddTextToImage(byte[] image, string text)
         {
             var msIn = new MemoryStream(image);
 
-            var img = Image.FromStream(msIn);
+            var img = SKBitmap.Decode(msIn);
 
-            using (Graphics graphics = Graphics.FromImage(img))
+            using (var canvas = new SKCanvas(img))
             {
-                var pixelSize = Convert.ToSingle(img.Size.Height * FontPercentage);
-                using (Font arialFont = new Font(new FontFamily("Arial"), pixelSize, GraphicsUnit.Pixel))
+                var pixelSize = Convert.ToSingle(img.Height * FontPercentage);
+
+                var brush = new SKPaint
                 {
-                    graphics.DrawString(text, arialFont, Brush, graphics.RenderingOrigin);
-                }
+                    Typeface = SKTypeface.Default,
+                    TextSize = pixelSize,
+                    IsAntialias = true,
+                    Color = Color
+                };
+
+                canvas.DrawText(text, 0, 0, brush);
+
+                canvas.Flush();
+
+                var i = SKImage.FromBitmap(img);
+                var data = i.Encode(SKEncodedImageFormat.Jpeg, 90);
+
+                var msOut = new MemoryStream();
+                data.SaveTo(msOut);
+                return msOut.ToArray();
             }
-            var msOut = new MemoryStream();
-            img.Save(msOut, img.RawFormat);
-            return msOut.ToArray();
         }
     }
 }
