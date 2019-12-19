@@ -17,6 +17,8 @@ namespace PossumLabs.Specflow.Core.Variables
             Defaults = new Dictionary<string, string>();
             Interpeter = interpeter;
             ObjectFactory = objectFactory;
+            DefaultInitialized = false;
+            FactoryMethods = new Dictionary<Characteristics, Func<T,T>>();
         }
 
         private Dictionary<string, IValueObject> dictionary = new Dictionary<string, IValueObject>();
@@ -27,10 +29,96 @@ namespace PossumLabs.Specflow.Core.Variables
         public T this[string key] => (T)dictionary[key];
         IValueObject IRepository.this[string key] => dictionary[key];
 
+
+        #region defaults & factory methods
+
+        protected virtual void DecorateNewItem(T target)
+        {
+            var props = target.GetType().GetProperties()
+                .Where(x => x.Attributes.AsObjectArray().Any(y => y is NullCoalesceWithDefaultAttribute));
+            foreach (var prop in props)
+            {
+                if (prop.GetValue(target) != null)
+                    continue;
+                var ret = Interpeter.RegisteredRepositories.Where(x => prop.PropertyType == x.Type);
+                if (ret.None())
+                    throw new Exception($"Unable to set the default for {target.GetType().Name}.{prop.Name} as " +
+                        $"there is no repository for {prop.PropertyType.Name}");
+                if (ret.One())
+                    prop.SetValue(target, ret.First().GetDefault());
+                else
+                    throw new Exception($"Too many repositories for type {prop.PropertyType.Name}");
+            }
+        }
+
+        public Dictionary<Characteristics, Func<T,T>> FactoryMethods { get; }
+        public Lazy<T> Default { get; private set; }
+        public Characteristics DefaultCharacteristics { get; private set;}
+        protected virtual T Factory() {
+            var ret = ObjectFactory.CreateInstance<T>();
+            DecorateNewItem(ret);
+            return ret;
+        }
+        private bool DefaultInitialized { get; set; }
+
+        public void InitializeDefault(Func<T> defaultFactory)
+            => InitializeDefault(defaultFactory, Characteristics.None);
+        public void InitializeDefault(Func<T> defaultFactory, Characteristics characteristics)
+        {
+            if (DefaultInitialized)
+                throw new InvalidOperationException("default factory is already set");
+            DefaultInitialized = true;
+            DefaultCharacteristics = characteristics;
+            Default = new Lazy<T>(defaultFactory);
+        }
+
+        object IRepository.GetDefault()
+            => GetDefault();
+
+        public T GetDefault()
+            => GetDefault(DefaultCharacteristics);
+
+        public T GetDefault(Characteristics characteristics)
+        {
+            if (characteristics == null)
+                throw new InvalidOperationException("Can't have a null characteristics; use Characteristics.None");
+
+            //default exitst
+            if (DefaultInitialized && Default.IsValueCreated)
+            {
+                if (DefaultCharacteristics == characteristics)
+                    return Default.Value;
+
+                throw new InvalidOperationException("unmatched Default Characteristics for existing default");
+            }
+
+            //default is prepped
+            if (DefaultCharacteristics == characteristics)
+                return Default.Value;
+
+            //initialize and recurse
+            if(FactoryMethods.ContainsKey(characteristics))
+            {
+                InitializeDefault(() =>  FactoryMethods[characteristics](Factory()));
+                return GetDefault(characteristics);
+            }
+            else
+                throw new InvalidOperationException("un understood set to characteristics, no factory method found");
+        }
+        #endregion
+
+        
+
         public Type Type => typeof(T);
         public IEnumerable<TypeConverter> RegisteredConversions => conversions;
         public Dictionary<string, string> Defaults { get; }
-        
+
+        Type IRepository.Type => throw new NotImplementedException();
+
+        IEnumerable<TypeConverter> IRepository.RegisteredConversions => throw new NotImplementedException();
+
+        List<Action<object>> IRepository.Decorators => throw new NotImplementedException();
+
         public void Add(string key, IValueObject item) => dictionary.Add(key, item);
         public void Add(Dictionary<string, T> d) => d.Keys.ToList().ForEach(key => dictionary.Add(key, d[key]));
         public bool ContainsKey(string root) => dictionary.ContainsKey(root);

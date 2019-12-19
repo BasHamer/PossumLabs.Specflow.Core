@@ -22,6 +22,7 @@ namespace PossumLabs.Specflow.Core.Variables
         }
 
         private List<IRepository> Repositories { get; set; }
+        public List<IRepository> RegisteredRepositories => Repositories.ToList();
         private const char Sepetator = '.';
         private Regex HasIndexer { get; }
         private Regex MatchVariable { get; }
@@ -47,8 +48,10 @@ namespace PossumLabs.Specflow.Core.Variables
             };
         }
 
-        public void Register(IRepository repository) 
-            => Repositories.Add(repository);
+        public void Register(IRepository repository)
+        {
+            Repositories.Add(repository);
+        }
 
         public void Set<X>(string path, X value)
         {

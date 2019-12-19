@@ -16,6 +16,9 @@ namespace PossumLabs.Specflow.Core.Variables
 
         void Add(string key, IValueObject item);
 
+        List<Action<object>> Decorators { get; }
+
         Dictionary<string, object> AsDictionary();
+        object GetDefault();
     }
 }
