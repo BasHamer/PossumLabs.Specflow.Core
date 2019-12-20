@@ -15,7 +15,8 @@ namespace PossumLabs.Specflow.Core.Variables
     /// <summary>
     /// Same as NullCoalesceWithDefault, better English Version
     /// </summary>
-    public class DefaultToRepositoryDefaultAttribute : NullCoalesceWithDefaultAttribute
+    /// [AttributeUsage(AttributeTargets.Property)]
+    public class DefaultToRepositoryDefaultAttribute : Attribute
     {
     }
 }

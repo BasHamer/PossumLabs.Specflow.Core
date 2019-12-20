@@ -30,7 +30,7 @@ namespace PossumLabs.Specflow.Core.UnitTests.Variables
 
         public class ParrentType : TestType
         {
-            public string a { get; set; }
+            new public string a { get; set; }
         }
 
         public class TestTypeRepository : RepositoryBase<TestType>
