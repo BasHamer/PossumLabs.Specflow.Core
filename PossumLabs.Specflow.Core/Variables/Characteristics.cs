@@ -20,6 +20,10 @@ namespace PossumLabs.Specflow.Core.Variables
 
         public int CompareTo(Characteristics other)
         {
+            //cast prevents an infinite loop
+            if (((object)other) == null)
+                return -2;
+
             var meNotOther = this.Except(other).ToList();
             var otherNotMe = other.Except(this).ToList();
 
@@ -34,7 +38,29 @@ namespace PossumLabs.Specflow.Core.Variables
             return 0;
         }
 
+        public override int GetHashCode()
+        {
+            if (this.None())
+                return 0;
+            return this
+                .Select(x=>(x?.GetHashCode() ?? -1) % 100) //mod will keep numbers small ish, will still overflow when it gets too big.
+                .Sum(x => x);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || obj.GetType() == this.GetType())
+                return Equals((Characteristics)obj);
+            return false;
+        }
+
         public bool Equals(Characteristics other)
             => CompareTo(other) == 0;
+
+        public static bool operator ==(Characteristics a, Characteristics b)
+            => a?.Equals(b)??b==null;
+
+        public static bool operator !=(Characteristics a, Characteristics b)
+            => !(a?.Equals(b)??b!=null);
     }
 }

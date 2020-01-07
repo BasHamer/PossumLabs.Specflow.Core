@@ -18,13 +18,18 @@ namespace PossumLabs.Specflow.Core.Variables
             Interpeter = interpeter;
             ObjectFactory = objectFactory;
             DefaultInitialized = false;
-            FactoryMethods = new Dictionary<Characteristics, Func<T,T>>();
+            FactoryMethods = new Dictionary<Characteristics, Func<T, T>>();
+            DefaultCharacteristics = Characteristics.None;
+
         }
 
         private Dictionary<string, IValueObject> dictionary = new Dictionary<string, IValueObject>();
         private List<TypeConverter> conversions = new List<TypeConverter>();
         private Interpeter Interpeter { get; }
         private ObjectFactory ObjectFactory { get; }
+        //public List<Action<T>> Decorators {get;}
+        //IEnumerable<Action<object>> IRepository.Decorators => this.Decorators.Select(x => DetypeAction(x)).ToList();
+        //private Action<object> DetypeAction(Action<T> a) => (x) => a((T)x);
 
         public T this[string key] => (T)dictionary[key];
         IValueObject IRepository.this[string key] => dictionary[key];
@@ -32,10 +37,10 @@ namespace PossumLabs.Specflow.Core.Variables
 
         #region defaults & factory methods
 
-        protected virtual void DecorateNewItem(T target)
+        public virtual void DecorateNewItem(T target)
         {
             var props = target.GetType().GetProperties()
-                .Where(x => x.Attributes.AsObjectArray().Any(y => y is NullCoalesceWithDefaultAttribute));
+                .Where(x => x.CustomAttributes.Select(y=>y.AttributeType).Any(y => y == typeof(NullCoalesceWithDefaultAttribute) || y == typeof(DefaultToRepositoryDefaultAttribute)));
             foreach (var prop in props)
             {
                 if (prop.GetValue(target) != null)
@@ -93,14 +98,14 @@ namespace PossumLabs.Specflow.Core.Variables
             }
 
             //default is prepped
-            if (DefaultCharacteristics == characteristics)
+            if (DefaultCharacteristics == characteristics && Default != null)
                 return Default.Value;
 
-            //initialize and recurse
+            //initialize
             if(FactoryMethods.ContainsKey(characteristics))
             {
                 InitializeDefault(() =>  FactoryMethods[characteristics](Factory()));
-                return GetDefault(characteristics);
+                return Default.Value;
             }
             else
                 throw new InvalidOperationException("un understood set to characteristics, no factory method found");
@@ -112,10 +117,6 @@ namespace PossumLabs.Specflow.Core.Variables
         public Type Type => typeof(T);
         public IEnumerable<TypeConverter> RegisteredConversions => conversions;
         public Dictionary<string, string> Defaults { get; }
-
-        IEnumerable<TypeConverter> IRepository.RegisteredConversions => throw new NotImplementedException();
-
-        List<Action<object>> IRepository.Decorators => throw new NotImplementedException();
 
         public void Add(string key, IValueObject item) => dictionary.Add(key, item);
         public void Add(Dictionary<string, T> d) => d.Keys.ToList().ForEach(key => dictionary.Add(key, d[key]));
