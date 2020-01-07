@@ -113,8 +113,6 @@ namespace PossumLabs.Specflow.Core.Variables
         public IEnumerable<TypeConverter> RegisteredConversions => conversions;
         public Dictionary<string, string> Defaults { get; }
 
-        Type IRepository.Type => throw new NotImplementedException();
-
         IEnumerable<TypeConverter> IRepository.RegisteredConversions => throw new NotImplementedException();
 
         List<Action<object>> IRepository.Decorators => throw new NotImplementedException();

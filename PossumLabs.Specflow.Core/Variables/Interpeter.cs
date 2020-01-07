@@ -220,7 +220,11 @@ namespace PossumLabs.Specflow.Core.Variables
                 return conversions.First().Conversion.Invoke(o);
 
             var convertConversions = typeof(System.Convert).CachedGetMethods()
-                .Where(x => x.ReturnType == targetType && x.Name.StartsWith("To") && x.GetParameters().Any(p => p.ParameterType == sourceType));
+                .Where(x => 
+                    x.ReturnType == targetType && 
+                    x.Name.StartsWith("To") && 
+                    x.GetParameters().Any(p => p.ParameterType == sourceType) &&
+                    x.GetParameters().One());
 
             if (convertConversions.Any())
                 return convertConversions.First().Invoke(null, o.AsObjectArray());
@@ -233,7 +237,7 @@ namespace PossumLabs.Specflow.Core.Variables
                 return Activator.CreateInstance(targetType, o);
 
             var parseMethod = targetType.CachedGetMethods().Where(m=>m.IsStatic && m.IsPublic)
-                .Where(m => m.Name == "Parse" && m.GetParameters().Length == 1 && m.GetParameters().First().ParameterType == sourceType);
+                .Where(m => m.Name == "Parse" && m.GetParameters().One() && m.GetParameters().First().ParameterType == sourceType);
 
             if (parseMethod.Any())
                 return parseMethod.First().Invoke(null, o.AsObjectArray());
