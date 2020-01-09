@@ -15,6 +15,7 @@
     <Description>For examples please see https://github.com/BasHamer/PossumLabs.Specflow
 
 This library is intended to be used with Specflow and adds variables and generic validation capabilities to Gherkin.</Description>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
