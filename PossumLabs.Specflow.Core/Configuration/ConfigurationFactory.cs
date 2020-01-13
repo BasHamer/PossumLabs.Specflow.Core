@@ -38,7 +38,7 @@ namespace PossumLabs.Specflow.Core.Configuration
                 string valueOverride = null;
                 try
                 {
-                    valueOverride = Configuration.GetSection($"{type.Name}:{property.Name}").Value;
+                    valueOverride = Configuration.GetSection($"{environmentVarName??type.Name}:{environmentPropName??property.Name}").Value;
                 }
                 catch
                 { }
