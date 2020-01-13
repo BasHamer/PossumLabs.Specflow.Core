@@ -11,6 +11,7 @@ namespace PossumLabs.Specflow.Core.UnitTests.Configuration
     [TestClass]
     public class ConfigurationFactoryTest
     {
+        //TODO: add non-json tests, non-attribute property tests, non-attribute class test , field tests
         [TestInitialize]
         public void Init()
         {
