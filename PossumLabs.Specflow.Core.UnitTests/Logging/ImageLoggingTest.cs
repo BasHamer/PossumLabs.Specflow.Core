@@ -10,7 +10,7 @@ namespace PossumLabs.Specflow.Core.UnitTests.Logging
     public class ImageLoggingTest
     {
         [TestMethod]
-        public void Initialize()
+        public void Constructor()
         {
             var target = new ImageLogging(new PossumLabs.Specflow.Core.Configuration.ImageLoggingConfig());
         }

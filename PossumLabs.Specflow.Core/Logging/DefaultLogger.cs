@@ -7,12 +7,14 @@ namespace PossumLabs.Specflow.Core.Logging
 {
     public class DefaultLogger : ILog
     {
-        public DefaultLogger(DirectoryInfo location)
+        public DefaultLogger(DirectoryInfo location, ILogFormatter logFormatter)
         {
             Location = location;
+            LogFormatter = logFormatter;
         }
 
         protected virtual DirectoryInfo Location { get; }
+        protected ILogFormatter LogFormatter { get; }
 
         public void File(string name, byte[] data, string extension="txt")
         {
@@ -30,18 +32,20 @@ namespace PossumLabs.Specflow.Core.Logging
             {
                 throw new Exception($"This file '{name}' already exists in the log location {Location.FullName}");
             }
-            Write($"{Open}a href=\"{file.RelativeFrom(Location)}\"{Close}{name}{Open}/a{Close}");
+            Write(LogFormatter.Format(null, new {
+                Name = name,
+                Extension = extension,
+                FileName = file.RelativeFrom(Location) }));
         }
 
         public void Message(string message)
             =>Write(message);
 
         public void Section(string section, string content)
-            =>Write($"{Open}details{Close}{Open}summary{Close}{section}{Open}/summary{Close}{Open}p{Close}{content}{Open}/p{Close}{Open}/details{Close}");
-        
+            =>Write(LogFormatter.Format(section, content));
 
-        virtual protected string Open => "[[[";
-        virtual protected string Close => "]]]";
+        public void Section(string section, object content)
+            => Write(LogFormatter.Format(section, content));
 
         virtual protected void Write(string message)
             => Console.WriteLine(message);
