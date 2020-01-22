@@ -25,7 +25,8 @@ namespace PossumLabs.Specflow.Core.Variables
             var types = GetAllTypesOf<IEntity>(assembly).Where(t => !t.IsAbstract && !t.IsInterface).ToList();
             var simplenames = types.Select(t => t.Name);
 
-            var files = GetAllFiles(directoryInfo, "json").Where(f=> string.Equals(f.Name, "existing.json", StringComparison.InvariantCultureIgnoreCase));
+            var files = GetAllFiles(directoryInfo, "json")
+                .Where(f=> string.Equals(f.Name, "existing.json", StringComparison.InvariantCultureIgnoreCase));
 
             foreach (var file in files)
             {
@@ -36,8 +37,15 @@ namespace PossumLabs.Specflow.Core.Variables
 
                     foreach (var objectSet in obj)
                     {
-                        var type = types.First(t => t.Name == (objectSet.type ?? objectSet.Type).Value);
+                        var type = types.FirstOrDefault(t => t.Name == (objectSet.type ?? objectSet.Type).Value);
+                        if (type == null)
+                            throw new Exception(
+                                $"unable to find {(objectSet.type ?? objectSet.Type).Value} " +
+                                $"did find {simplenames.LogFormat()} " +
+                                $"in folder {directoryInfo.FullName}");
+
                         var expectedMembers = type.GetValueMembers().Where(m => !types.Contains(m.Type));
+
                         foreach (var keyValue in objectSet.values)
                         {
                             Interpeter.Add(type, (keyValue.key ?? keyValue.Key).Value, ProcessVariable(file, type, expectedMembers, (keyValue.value ?? keyValue.Value)));
