@@ -42,6 +42,7 @@ namespace PossumLabs.Specflow.Core.Variables
                             throw new Exception(
                                 $"unable to find {(objectSet.type ?? objectSet.Type).Value} " +
                                 $"did find {simplenames.LogFormat()} " +
+                                $"for assembly {assembly.FullName} " +
                                 $"in folder {directoryInfo.FullName}");
 
                         var expectedMembers = type.GetValueMembers().Where(m => !types.Contains(m.Type));
