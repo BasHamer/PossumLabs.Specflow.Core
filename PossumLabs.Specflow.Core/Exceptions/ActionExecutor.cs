@@ -9,7 +9,8 @@ namespace PossumLabs.Specflow.Core.Exceptions
     {
         public ActionExecutor(ILog logger)
         {
-            Logger = logger;
+            Logger = logger; 
+            IgnoredExceptions = new List<Exception>();
         }
         private ILog Logger { get; }
         public void Execute(Action action)
@@ -31,6 +32,24 @@ namespace PossumLabs.Specflow.Core.Exceptions
                     throw;
             }
         }
+
+        /// <summary>
+        /// For after scnearion hooks.
+        /// </summary>
+        public void ContinueOnError(Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception e)
+            {
+                Exception = e;
+                IgnoredExceptions.Add(e);
+            }
+        }
+
+        public List<Exception> IgnoredExceptions { get; }
 
         public bool ExpectException { get; set; }
 
